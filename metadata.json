@@ -1,0 +1,8 @@
+{
+  "name": "Kesiapan Operasionalisasi KDKMP",
+  "description": "Sistem Informasi & Checklist Kesiapan Operasionalisasi Koperasi Desa / Kelurahan Merah Putih (KDKMP)",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
