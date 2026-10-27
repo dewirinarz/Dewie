@@ -1211,6 +1211,8 @@ export const ChecklistModal: React.FC<ChecklistModalProps> = ({
                     item: checklist.sistem.sistemStokBarang,
                     desc: 'Aplikasi ERP / software stok barang real-time & kartu gudang',
                     suggestions: [
+                      'Manual',
+                      'Aplikasi Excel',
                       'Aplikasi POS & ERP KDKMP Cloud v2',
                       'Modul Kartu Stok Digital Real-Time',
                       'Integrasi Barcode Scanner Wireless',
@@ -1224,6 +1226,8 @@ export const ChecklistModal: React.FC<ChecklistModalProps> = ({
                     item: checklist.sistem.sistemPemesananProduk,
                     desc: 'Aplikasi order terintegrasi supplier/B2B (Bulog, ID FOOD, Pertamina)',
                     suggestions: [
+                      'Manual',
+                      'Aplikasi Excel',
                       'Portal Order B2B ID FOOD / Bulog',
                       'Sistem Restock Otomatis PO Supplier',
                       'Aplikasi Web Pemesanan Mitra Pangan',
@@ -1237,6 +1241,9 @@ export const ChecklistModal: React.FC<ChecklistModalProps> = ({
                     item: checklist.sistem.sistemAbsensiPegawai,
                     desc: 'Biometrik / fingerprint / presensi mobile GPS',
                     suggestions: [
+                      'Aplikasi Simkopdes',
+                      'AgriConnect',
+                      'Simkopdes&AgriConnect',
                       'Biometrik Sidik Jari (Fingerprint)',
                       'Presensi Mobile berbasis Geofencing GPS',
                       'Mesin Absensi Terhubung Cloud HR',
@@ -1292,38 +1299,50 @@ export const ChecklistModal: React.FC<ChecklistModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="pl-0 sm:pl-9 pt-1">
-                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                        Nama Aplikasi / Spesifikasi Teknis :
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Nama aplikasi, versi software, atau mekanisme operasional..."
-                        value={item.keterangan || ''}
-                        onChange={e =>
-                          handleUpdate(prev => {
-                            (prev.sistem as any)[key].keterangan = e.target.value;
-                            return prev;
-                          })
-                        }
-                        className="w-full text-xs py-1.5 px-3 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-1 focus:ring-teal-600 focus:outline-none"
-                      />
-                      <div className="flex flex-wrap gap-1.5 mt-2">
-                        {suggestions.map(sug => (
-                          <button
-                            key={sug}
-                            type="button"
-                            onClick={() =>
-                              handleUpdate(prev => {
-                                (prev.sistem as any)[key].keterangan = sug;
-                                return prev;
-                              })
-                            }
-                            className="text-[10px] bg-slate-100 hover:bg-teal-50 hover:text-teal-800 text-slate-600 px-2 py-0.5 rounded border border-slate-200 transition-colors"
-                          >
-                            + {sug}
-                          </button>
-                        ))}
+                    <div className="pl-0 sm:pl-9 pt-1 space-y-2">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                          Nama Aplikasi / Keterangan Spesifikasi Teknis :
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Nama aplikasi, versi software, atau mekanisme operasional..."
+                          value={item.keterangan || ''}
+                          onChange={e =>
+                            handleUpdate(prev => {
+                              (prev.sistem as any)[key].keterangan = e.target.value;
+                              return prev;
+                            })
+                          }
+                          className="w-full text-xs py-1.5 px-3 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-1 focus:ring-teal-600 focus:outline-none"
+                        />
+                        <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                          <span className="text-[10px] text-slate-500 font-semibold self-center">Rekomendasi lain:</span>
+                          {suggestions.map(sug => {
+                            const isSelected = item.keterangan?.trim().toLowerCase() === sug.toLowerCase();
+                            return (
+                              <button
+                                key={sug}
+                                type="button"
+                                onClick={() =>
+                                  handleUpdate(prev => {
+                                    (prev.sistem as any)[key].keterangan = sug;
+                                    (prev.sistem as any)[key].status = 'ada';
+                                    return prev;
+                                  })
+                                }
+                                className={`text-[10px] px-2 py-0.5 rounded border transition-colors ${
+                                  isSelected
+                                    ? 'bg-teal-600 text-white border-teal-600 font-semibold shadow-2xs'
+                                    : 'bg-slate-100 hover:bg-teal-50 hover:text-teal-800 text-slate-700 border-slate-200'
+                                }`}
+                              >
+                                {isSelected ? '✓ ' : '+ '}
+                                {sug}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   </div>

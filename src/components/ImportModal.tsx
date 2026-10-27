@@ -63,7 +63,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
   // Batch Results State
   const [fileResults, setFileResults] = useState<FileImportResult[]>([]);
   const [selectedLocationIds, setSelectedLocationIds] = useState<Set<string>>(new Set());
-  const [conflictMode, setConflictMode] = useState<'overwrite' | 'append' | 'skip'>('overwrite');
+  const [conflictMode, setConflictMode] = useState<'overwrite' | 'append' | 'skip'>('append');
 
   // Search & Filter in Preview
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -168,7 +168,6 @@ export const ImportModal: React.FC<ImportModalProps> = ({
   const handleLoadPurbayanSingle = () => {
     const loc = JSON.parse(JSON.stringify(PURBAYAN_PARSED_DATA)) as KDKMPLocation;
     loc.id = `kdkmp-purbayan-${Date.now()}`;
-    loc.catatanTambahan = `${loc.catatanTambahan || ''} (Sumber: 1._Form_KDMP_Purbayan_cf86c777.pdf)`;
 
     const singleResult: FileImportResult = {
       fileId: `file-purbayan-${Date.now()}`,
@@ -217,7 +216,6 @@ export const ImportModal: React.FC<ImportModalProps> = ({
     const batchResults: FileImportResult[] = SAMPLE_BATCH_PRESETS.map((preset, idx) => {
       const loc = JSON.parse(JSON.stringify(preset.location)) as KDKMPLocation;
       loc.id = `kdkmp-batch-${timestamp}-${idx}`;
-      loc.catatanTambahan = `${loc.catatanTambahan || ''} (Sumber Berkas: ${preset.fileName})`;
 
       return {
         fileId: `file-batch-${timestamp}-${idx}`,
@@ -778,14 +776,26 @@ export const ImportModal: React.FC<ImportModalProps> = ({
               {/* Conflict Resolution Mode */}
               <div className="p-3.5 bg-slate-100/80 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                 <div>
-                  <span className="font-bold text-slate-800">Kebijakan Data Duplikat / Konflik:</span>
+                  <span className="font-bold text-slate-800">Kebijakan Impor ke Daftar Lokasi:</span>
                   <p className="text-slate-500 text-[11px]">
-                    Jika kode atau nama unit yang diimpor sudah ada dalam daftar database
+                    Memastikan seluruh {selectedLocationIds.size} data terpilih masuk ke daftar lokasi
                   </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
-                  <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                  <label className="inline-flex items-center gap-1.5 cursor-pointer bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
+                    <input
+                      type="radio"
+                      name="conflictMode"
+                      checked={conflictMode === 'append'}
+                      onChange={() => setConflictMode('append')}
+                    />
+                    <span className={conflictMode === 'append' ? 'font-bold text-emerald-800' : 'text-slate-600'}>
+                      (Rekomendasi) Masukkan Seluruh Data Terpilih ke Daftar Lokasi
+                    </span>
+                  </label>
+
+                  <label className="inline-flex items-center gap-1.5 cursor-pointer bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
                     <input
                       type="radio"
                       name="conflictMode"
@@ -797,19 +807,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
                     </span>
                   </label>
 
-                  <label className="inline-flex items-center gap-1.5 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="conflictMode"
-                      checked={conflictMode === 'append'}
-                      onChange={() => setConflictMode('append')}
-                    />
-                    <span className={conflictMode === 'append' ? 'font-bold text-slate-900' : 'text-slate-600'}>
-                      Simpan Sebagai Unit Baru
-                    </span>
-                  </label>
-
-                  <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                  <label className="inline-flex items-center gap-1.5 cursor-pointer bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
                     <input
                       type="radio"
                       name="conflictMode"
@@ -817,7 +815,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
                       onChange={() => setConflictMode('skip')}
                     />
                     <span className={conflictMode === 'skip' ? 'font-bold text-slate-900' : 'text-slate-600'}>
-                      Lewati Data Duplikat
+                      Lewati Duplikat
                     </span>
                   </label>
                 </div>
@@ -831,7 +829,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-xs font-medium text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 transition-colors"
+            className="px-4 py-2 rounded-lg text-xs font-medium text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 transition-colors cursor-pointer"
           >
             Tutup
           </button>
@@ -840,14 +838,14 @@ export const ImportModal: React.FC<ImportModalProps> = ({
             <button
               onClick={handleConfirmImport}
               disabled={selectedLocationIds.size === 0}
-              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white shadow-sm transition-all ${
+              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white shadow-sm transition-all cursor-pointer ${
                 selectedLocationIds.size > 0
-                  ? 'bg-emerald-600 hover:bg-emerald-500 cursor-pointer'
+                  ? 'bg-emerald-600 hover:bg-emerald-500'
                   : 'bg-slate-400 cursor-not-allowed'
               }`}
             >
               <Check className="w-4 h-4" />
-              Simpan & Masukkan ke Database ({selectedLocationIds.size} Lokasi Terpilih)
+              Masukkan Seluruh Data Terpilih ke Daftar Lokasi ({selectedLocationIds.size} Titik)
             </button>
           )}
         </div>

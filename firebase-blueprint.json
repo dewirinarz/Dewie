@@ -1,0 +1,84 @@
+{
+  "entities": {
+    "Location": {
+      "title": "Location",
+      "description": "KDKMP location operational readiness checklist and profile data",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the location"
+        },
+        "kodeKDKMP": {
+          "type": "string",
+          "description": "Unique code identifier for the KDKMP unit"
+        },
+        "namaLokasi": {
+          "type": "string",
+          "description": "Name of the KDKMP location or village cooperative"
+        },
+        "provinsi": {
+          "type": "string",
+          "description": "Province name"
+        },
+        "kabupatenKota": {
+          "type": "string",
+          "description": "Regency or city name"
+        },
+        "kecamatan": {
+          "type": "string",
+          "description": "District name"
+        },
+        "desaKelurahan": {
+          "type": "string",
+          "description": "Village or subdistrict name"
+        },
+        "alamatLengkap": {
+          "type": "string",
+          "description": "Full address of the cooperative unit"
+        },
+        "namaPetugas": {
+          "type": "string",
+          "description": "Officer or surveyor in charge"
+        },
+        "kontakPerson": {
+          "type": "string",
+          "description": "Contact number or person"
+        },
+        "tanggalKunjungan": {
+          "type": "string",
+          "description": "Date of inspection or survey"
+        },
+        "catatanTambahan": {
+          "type": "string",
+          "description": "Additional notes"
+        },
+        "latitude": {
+          "type": "number",
+          "description": "Geographical latitude"
+        },
+        "longitude": {
+          "type": "number",
+          "description": "Geographical longitude"
+        },
+        "checklist": {
+          "type": "object",
+          "description": "Complete readiness checklist covering physical facilities, HR, systems, products, and transactions"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when location was last updated"
+        }
+      },
+      "required": ["id", "kodeKDKMP", "namaLokasi", "checklist", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/locations/{locationId}": {
+      "schema": {
+        "$ref": "#/entities/Location"
+      },
+      "description": "Stores KDKMP cooperative locations and readiness checklist state"
+    }
+  }
+}

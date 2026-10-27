@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Building, MapPin, User, Calendar, Phone, Save, CheckCircle2, AlertTriangle, Info, Clock } from 'lucide-react';
+import { X, Building, MapPin, User, Calendar, Phone, Save, CheckCircle2, AlertTriangle, Info, Clock, Shuffle } from 'lucide-react';
 import { KDKMPLocation, createEmptyChecklist } from '../types/kdkmp';
 import { INDONESIA_PROVINCES } from '../data/defaultData';
+import { generateRandomKDKMPCode } from '../utils/kemendagriCodes';
 
 interface LocationFormModalProps {
   isOpen: boolean;
@@ -55,7 +56,7 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
       });
     } else {
       setFormData({
-        kodeKDKMP: `KDKMP-${Math.floor(100 + Math.random() * 900)}`,
+        kodeKDKMP: generateRandomKDKMPCode('Jawa Barat'),
         namaLokasi: '',
         provinsi: 'Jawa Barat',
         kabupatenKota: '',
@@ -71,6 +72,11 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
       });
     }
   }, [initialData, isOpen]);
+
+  const handleRandomizeCode = () => {
+    const newCode = generateRandomKDKMPCode(formData.provinsi, formData.kabupatenKota);
+    setFormData(prev => ({ ...prev, kodeKDKMP: newCode }));
+  };
 
   // Real-time check for duplicate location names (case-insensitive & trimmed)
   const duplicateMatches = useMemo(() => {
@@ -91,7 +97,7 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
     const parsedLng = formData.longitude.trim() !== '' ? parseFloat(formData.longitude) : undefined;
 
     // Fallback if empty so data can ALWAYS be saved even if incomplete
-    const fallbackCode = formData.kodeKDKMP.trim() || `KDKMP-${Math.floor(100 + Math.random() * 900)}`;
+    const fallbackCode = formData.kodeKDKMP.trim() || generateRandomKDKMPCode(formData.provinsi, formData.kabupatenKota);
     const fallbackName = formData.namaLokasi.trim() || (formData.kodeKDKMP.trim() ? `Unit ${formData.kodeKDKMP.trim()}` : 'Unit KDKMP Baru (Draf)');
 
     onSave({
@@ -148,16 +154,30 @@ export const LocationFormModal: React.FC<LocationFormModalProps> = ({
           {/* Row 1: Kode & Nama */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Kode Unit KDKMP
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Kode Unit KDKMP
+                </label>
+                <button
+                  type="button"
+                  onClick={handleRandomizeCode}
+                  title="Buat kode KDKMP acak berbasis Kemendagri (2 Digit Provinsi + Titik + 2 Digit Kab/Kota)"
+                  className="text-[11px] text-red-600 hover:text-red-700 font-semibold inline-flex items-center gap-1 hover:underline cursor-pointer"
+                >
+                  <Shuffle className="w-3 h-3" />
+                  <span>Acak Kode Kemendagri</span>
+                </button>
+              </div>
               <input
                 type="text"
-                placeholder="Contoh: KDKMP-JB-045"
+                placeholder="Contoh: 33.11.KDKMP.034"
                 value={formData.kodeKDKMP}
                 onChange={e => setFormData({ ...formData, kodeKDKMP: e.target.value })}
-                className="w-full py-2 px-3 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-red-500 focus:outline-none font-mono"
+                className="w-full py-2 px-3 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-red-500 focus:outline-none font-mono text-xs sm:text-sm"
               />
+              <p className="text-[10px] text-slate-500 mt-1">
+                Kemendagri: <strong>[2 Digit Prov].[2 Digit Kab/Kota].KDKMP.[No]</strong>
+              </p>
             </div>
             <div className="sm:col-span-2">
               <label className="block text-xs font-semibold text-slate-700 mb-1">

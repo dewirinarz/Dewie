@@ -14,7 +14,9 @@ import {
   Layers,
   ChevronRight,
   Sparkles,
-  Maximize2
+  Maximize2,
+  Edit,
+  Trash2
 } from 'lucide-react';
 import { KDKMPLocation, calculateReadiness } from '../types/kdkmp';
 import { getLocationCoordinates } from '../utils/geoUtils';
@@ -24,13 +26,17 @@ interface MapViewProps {
   onOpenChecklist: (location: KDKMPLocation, tab?: 'fisik' | 'sdm' | 'sistem' | 'produk' | 'transaksi') => void;
   onOpenPdfPreview: (location: KDKMPLocation) => void;
   onOpenAddModal: () => void;
+  onOpenEditLocation?: (location: KDKMPLocation) => void;
+  onOpenDeleteConfirm?: (location: KDKMPLocation) => void;
 }
 
 export const MapView: React.FC<MapViewProps> = ({
   locations,
   onOpenChecklist,
   onOpenPdfPreview,
-  onOpenAddModal
+  onOpenAddModal,
+  onOpenEditLocation,
+  onOpenDeleteConfirm
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -207,6 +213,9 @@ export const MapView: React.FC<MapViewProps> = ({
             <button id="btn-popup-checklist-${loc.id}" style="flex: 1; background: #dc2626; color: #ffffff; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
               Input Checklist
             </button>
+            <button id="btn-popup-edit-${loc.id}" style="background: #ffffff; color: #334155; border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">
+              Edit
+            </button>
             <button id="btn-popup-pdf-${loc.id}" style="background: #ffffff; color: #334155; border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">
               PDF Resmi
             </button>
@@ -221,6 +230,10 @@ export const MapView: React.FC<MapViewProps> = ({
         const btnChecklist = document.getElementById(`btn-popup-checklist-${loc.id}`);
         if (btnChecklist) {
           btnChecklist.onclick = () => onOpenChecklist(loc);
+        }
+        const btnEdit = document.getElementById(`btn-popup-edit-${loc.id}`);
+        if (btnEdit && onOpenEditLocation) {
+          btnEdit.onclick = () => onOpenEditLocation(loc);
         }
         const btnPdf = document.getElementById(`btn-popup-pdf-${loc.id}`);
         if (btnPdf) {
@@ -444,13 +457,49 @@ export const MapView: React.FC<MapViewProps> = ({
                     <div className="text-slate-400 pl-4">{loc.kabupatenKota}, {loc.provinsi}</div>
                   </div>
 
-                  <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1.5 border-t border-slate-100">
-                    <span className="font-mono">
+                  <div className="flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-slate-100 gap-1 flex-wrap">
+                    <span className="font-mono text-[10px]">
                       GPS: {lat.toFixed(4)}, {lng.toFixed(4)}
                     </span>
-                    <span className="font-semibold text-red-600 flex items-center gap-0.5">
-                      Lihat Pin <ChevronRight className="w-3 h-3" />
-                    </span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={e => {
+                          e.stopPropagation();
+                          onOpenChecklist(loc);
+                        }}
+                        className="px-2 py-0.5 rounded bg-red-600 hover:bg-red-500 text-white font-semibold text-[10px] transition-colors"
+                        title="Buka Form Checklist"
+                      >
+                        Checklist
+                      </button>
+                      {onOpenEditLocation && (
+                        <button
+                          type="button"
+                          onClick={e => {
+                            e.stopPropagation();
+                            onOpenEditLocation(loc);
+                          }}
+                          className="p-1 rounded text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200"
+                          title="Edit Info Lokasi"
+                        >
+                          <Edit className="w-3 h-3" />
+                        </button>
+                      )}
+                      {onOpenDeleteConfirm && (
+                        <button
+                          type="button"
+                          onClick={e => {
+                            e.stopPropagation();
+                            onOpenDeleteConfirm(loc);
+                          }}
+                          className="p-1 rounded text-rose-500 hover:text-rose-700 hover:bg-rose-50 border border-slate-200"
+                          title="Hapus Lokasi"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               );

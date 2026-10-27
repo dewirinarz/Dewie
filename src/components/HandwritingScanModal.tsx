@@ -324,10 +324,10 @@ export const HandwritingScanModal: React.FC<HandwritingScanModalProps> = ({
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-slate-800">
-                      Klik atau seret foto lembar kertas tulisan tangan ke sini
+                      Klik atau seret berkas PDF / foto lembar kertas tulisan tangan ke sini
                     </p>
                     <p className="text-xs text-slate-500 mt-1">
-                      Mendukung format JPG, PNG, WebP (foto kamera ponsel atau hasil scan lembar kerja)
+                      Mendukung format PDF (.pdf), JPG, PNG, WebP (berkas PDF formulir tulisan tangan atau foto kamera)
                     </p>
                   </div>
 
@@ -341,7 +341,7 @@ export const HandwritingScanModal: React.FC<HandwritingScanModalProps> = ({
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-colors"
                     >
                       <Upload className="w-3.5 h-3.5" />
-                      Pilih dari File
+                      Pilih dari File (PDF / Gambar)
                     </button>
                     <button
                       type="button"
@@ -357,12 +357,12 @@ export const HandwritingScanModal: React.FC<HandwritingScanModalProps> = ({
                   </div>
                 </div>
               ) : (
-                /* Image Preview with Change / Clear actions */
+                /* Preview with Change / Clear actions */
                 <div className="space-y-4">
                   <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
                     <span className="font-medium truncate max-w-sm flex items-center gap-1.5">
                       <FileText className="w-4 h-4 text-indigo-600" />
-                      {fileName || 'Foto Formulir Terpilih'}
+                      {fileName || 'Dokumen Formulir Terpilih'}
                     </span>
                     <div className="flex items-center gap-2">
                       <button
@@ -370,7 +370,7 @@ export const HandwritingScanModal: React.FC<HandwritingScanModalProps> = ({
                         onClick={() => fileInputRef.current?.click()}
                         className="text-indigo-600 hover:text-indigo-800 font-semibold"
                       >
-                        Ganti Foto
+                        Ganti Berkas
                       </button>
                       <span className="text-slate-300">|</span>
                       <button
@@ -386,18 +386,30 @@ export const HandwritingScanModal: React.FC<HandwritingScanModalProps> = ({
                     </div>
                   </div>
 
-                  {/* Image Display */}
-                  <div className="relative max-h-72 rounded-xl overflow-hidden border border-slate-200 bg-slate-900/5 flex items-center justify-center">
-                    <img
-                      src={selectedImage}
-                      alt="Formulir Tulisan Tangan"
-                      className="max-h-72 w-auto object-contain mx-auto"
-                    />
+                  {/* Display Image or PDF Banner */}
+                  <div className="relative max-h-72 rounded-xl overflow-hidden border border-slate-200 bg-slate-900/5 flex items-center justify-center min-h-[160px]">
+                    {mimeType === 'application/pdf' || fileName.toLowerCase().endsWith('.pdf') ? (
+                      <div className="p-6 text-center flex flex-col items-center justify-center space-y-2">
+                        <div className="w-16 h-16 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center shadow-xs">
+                          <FileText className="w-8 h-8" />
+                        </div>
+                        <div>
+                          <span className="text-sm font-bold text-slate-800 block truncate max-w-md">{fileName}</span>
+                          <span className="text-xs text-slate-500">Berkas Dokumen PDF Formulir / Hasil Pindai Tulisan Tangan</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <img
+                        src={selectedImage}
+                        alt="Formulir Tulisan Tangan"
+                        className="max-h-72 w-auto object-contain mx-auto"
+                      />
+                    )}
 
                     {isScanning && (
                       <div className="absolute inset-0 bg-indigo-950/60 backdrop-blur-2xs flex flex-col items-center justify-center text-white p-4 text-center">
                         <Loader2 className="w-9 h-9 animate-spin text-indigo-400 mb-3" />
-                        <span className="font-bold text-sm text-white">Sedang Membaca Tulisan Tangan...</span>
+                        <span className="font-bold text-sm text-white">Sedang Membaca Tulisan Tangan & OCR...</span>
                         <span className="text-xs text-indigo-200 mt-1 max-w-sm animate-pulse">{scanStep}</span>
                       </div>
                     )}
@@ -422,12 +434,12 @@ export const HandwritingScanModal: React.FC<HandwritingScanModalProps> = ({
                       {isScanning ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          Memproses Gambar...
+                          Memproses Berkas...
                         </>
                       ) : (
                         <>
                           <Sparkles className="w-4 h-4" />
-                          Mulai Pindai Tulisan Tangan (AI)
+                          Mulai Pindai Tulisan Tangan / OCR (AI)
                         </>
                       )}
                     </button>
@@ -439,7 +451,7 @@ export const HandwritingScanModal: React.FC<HandwritingScanModalProps> = ({
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/*,application/pdf,.pdf"
                 onChange={handleFileChange}
                 className="hidden"
               />

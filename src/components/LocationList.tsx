@@ -30,9 +30,14 @@ import {
   Building2,
   ArrowUpDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  FileSpreadsheet,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 import { KDKMPLocation, calculateReadiness } from '../types/kdkmp';
+import { exportSummaryCsv } from '../utils/exportUtils';
+import { BulkDeleteConfirmModal } from './BulkDeleteConfirmModal';
 
 export type LocationSortOption =
   | 'name_asc'
@@ -106,6 +111,8 @@ interface LocationListProps {
   onOpenPdfPreview: (location: KDKMPLocation) => void;
   onOpenAddModal: () => void;
   onOpenImportModal?: () => void;
+  onBulkDelete?: (ids: string[]) => void;
+  onClearAll?: () => void;
 }
 
 export const LocationList: React.FC<LocationListProps> = ({
@@ -115,7 +122,9 @@ export const LocationList: React.FC<LocationListProps> = ({
   onOpenDeleteConfirm,
   onOpenPdfPreview,
   onOpenAddModal,
-  onOpenImportModal
+  onOpenImportModal,
+  onBulkDelete,
+  onClearAll
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProvince, setSelectedProvince] = useState<string>('all');
@@ -123,6 +132,11 @@ export const LocationList: React.FC<LocationListProps> = ({
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [sortBy, setSortBy] = useState<LocationSortOption>('name_asc');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+
+  // Multi-selection state for bulk delete / export
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
+  const [isClearAllModalOpen, setIsClearAllModalOpen] = useState(false);
 
   // Available unique provinces in current data
   const provinces = useMemo(() => {
@@ -330,27 +344,62 @@ export const LocationList: React.FC<LocationListProps> = ({
       });
   }, [locations, searchQuery, selectedProvince, selectedKabupaten, selectedStatus, sortBy]);
 
-  const getStatusBadge = (status: 'Sangat Siap' | 'Siap Bersyarat' | 'Belum Siap') => {
+  // Multi-selection helper functions
+  const toggleSelectLocation = (id: string, e?: React.MouseEvent | React.ChangeEvent) => {
+    if (e && 'stopPropagation' in e) e.stopPropagation();
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === filteredLocations.length && filteredLocations.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredLocations.map(l => l.id)));
+    }
+  };
+
+  const handleExportSelected = () => {
+    const selected = locations.filter(l => selectedIds.has(l.id));
+    if (selected.length > 0) {
+      exportSummaryCsv(selected);
+    }
+  };
+
+  const getStatusBadge = (status: 'Sangat Siap' | 'Siap Bersyarat' | 'Belum Siap', isCompact = false) => {
     switch (status) {
       case 'Sangat Siap':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            Sangat Siap (Operasional Penuh)
+          <span className={`inline-flex items-center gap-1 font-semibold rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 ${
+            isCompact ? 'px-2 py-0.5 text-[10px]' : 'px-2.5 py-1 text-xs'
+          }`}>
+            <CheckCircle2 className={`${isCompact ? 'w-3 h-3' : 'w-3.5 h-3.5'} text-emerald-600 shrink-0`} />
+            <span className="truncate">{isCompact ? 'Sangat Siap' : 'Sangat Siap (Operasional Penuh)'}</span>
           </span>
         );
       case 'Siap Bersyarat':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-            Siap Bersyarat (Perlu Pemenuhan)
+          <span className={`inline-flex items-center gap-1 font-semibold rounded-full bg-amber-50 text-amber-800 border border-amber-300 ${
+            isCompact ? 'px-2 py-0.5 text-[10px]' : 'px-2.5 py-1 text-xs'
+          }`}>
+            <AlertTriangle className={`${isCompact ? 'w-3 h-3' : 'w-3.5 h-3.5'} text-amber-600 shrink-0`} />
+            <span className="truncate">{isCompact ? 'Siap Bersyarat' : 'Siap Bersyarat (Perlu Pemenuhan)'}</span>
           </span>
         );
       case 'Belum Siap':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-300">
-            <XCircle className="w-3.5 h-3.5 text-rose-600" />
-            Belum Siap (Tahap Persiapan)
+          <span className={`inline-flex items-center gap-1 font-semibold rounded-full bg-rose-50 text-rose-800 border border-rose-300 ${
+            isCompact ? 'px-2 py-0.5 text-[10px]' : 'px-2.5 py-1 text-xs'
+          }`}>
+            <XCircle className={`${isCompact ? 'w-3 h-3' : 'w-3.5 h-3.5'} text-rose-600 shrink-0`} />
+            <span className="truncate">{isCompact ? 'Belum Siap' : 'Belum Siap (Tahap Persiapan)'}</span>
           </span>
         );
     }
@@ -795,7 +844,35 @@ export const LocationList: React.FC<LocationListProps> = ({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            {filteredLocations.length > 0 && (
+              <button
+                type="button"
+                onClick={handleSelectAll}
+                className={`px-2.5 py-1 rounded text-xs font-semibold border transition-all inline-flex items-center gap-1.5 ${
+                  selectedIds.size > 0
+                    ? 'bg-red-50 text-red-800 border-red-300'
+                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                }`}
+                title="Pilih atau batalkan semua lokasi untuk aksi massal"
+              >
+                <CheckSquare className="w-3.5 h-3.5 text-red-600" />
+                <span>{selectedIds.size === filteredLocations.length ? 'Batal Pilih' : `Pilih Semua (${filteredLocations.length})`}</span>
+              </button>
+            )}
+
+            {onClearAll && locations.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setIsClearAllModalOpen(true)}
+                className="px-2.5 py-1 rounded text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors inline-flex items-center gap-1"
+                title="Hapus seluruh data lokasi untuk memulai dari database kosong"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                <span className="hidden sm:inline">Hapus Semua</span>
+              </button>
+            )}
+
             <span className="text-slate-400">Tampilan:</span>
             <button
               onClick={() => setViewMode('grid')}
@@ -816,6 +893,59 @@ export const LocationList: React.FC<LocationListProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Floating Bulk Action Bar when 1 or more items are selected */}
+      {selectedIds.size > 0 && (
+        <div className="sticky top-20 z-20 bg-slate-900 text-white p-3 sm:p-4 rounded-xl shadow-xl border border-slate-700 flex flex-wrap items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-3">
+            <span className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center font-bold text-xs text-white shadow-xs">
+              {selectedIds.size}
+            </span>
+            <div>
+              <div className="font-bold text-xs sm:text-sm">
+                {selectedIds.size} Unit Lokasi Terpilih
+              </div>
+              <div className="text-[11px] text-slate-400">
+                Pilih aksi massal untuk mengedit atau menghapus sekaligus
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={handleSelectAll}
+              className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-600 transition-colors"
+            >
+              {selectedIds.size === filteredLocations.length ? 'Batalkan Pilihan' : `Pilih Semua (${filteredLocations.length})`}
+            </button>
+            <button
+              type="button"
+              onClick={handleExportSelected}
+              className="px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold shadow-xs transition-colors inline-flex items-center gap-1.5"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>Ekspor Terpilih ({selectedIds.size})</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsBulkDeleteModalOpen(true)}
+              className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-xs transition-colors inline-flex items-center gap-1.5"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Hapus {selectedIds.size} Lokasi Terpilih</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedIds(new Set())}
+              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors ml-1"
+              title="Batalkan Pilihan"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Banner Spotlight: Data yang Sebelumnya / Baru Saja Diupdate */}
       {mostRecentlyUpdated && (
@@ -967,7 +1097,7 @@ export const LocationList: React.FC<LocationListProps> = ({
         </div>
       ) : viewMode === 'grid' ? (
         /* GRID VIEW */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
           {filteredLocations.map(location => {
             const score = calculateReadiness(location.checklist);
             const cl = location.checklist;
@@ -981,33 +1111,51 @@ export const LocationList: React.FC<LocationListProps> = ({
             return (
               <div
                 key={location.id}
-                className="bg-white rounded-xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group"
+                className={`bg-white rounded-xl border shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group ${
+                  selectedIds.has(location.id)
+                    ? 'border-red-400 ring-2 ring-red-400/40 bg-red-50/10'
+                    : 'border-slate-200/90'
+                }`}
               >
                 {/* Card Header */}
-                <div className="p-5 pb-4 border-b border-slate-100 bg-gradient-to-b from-slate-50/50 to-white">
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <div>
-                      <span className="text-[11px] font-mono font-semibold tracking-wider text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                        {location.kodeKDKMP || 'KDKMP-ID'}
-                      </span>
-                      <h3 className="text-base font-bold text-slate-900 mt-1 leading-snug group-hover:text-red-700 transition-colors flex items-center gap-1.5 flex-wrap">
-                        <span>{location.namaLokasi}</span>
-                        {duplicateNameMap[(location.namaLokasi || '').trim().toLowerCase()]?.length > 1 && (
-                          <span
-                            className="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-full"
-                            title={`Terdapat ${duplicateNameMap[(location.namaLokasi || '').trim().toLowerCase()].length} lokasi dengan nama yang sama`}
-                          >
-                            <AlertTriangle className="w-2.5 h-2.5 text-amber-700 shrink-0" />
-                            Nama Sama ({duplicateNameMap[(location.namaLokasi || '').trim().toLowerCase()].length}x)
+                <div className="p-3.5 sm:p-5 pb-3 sm:pb-4 border-b border-slate-100 bg-gradient-to-b from-slate-50/50 to-white">
+                  <div className="flex items-start justify-between gap-2.5 sm:gap-3 mb-2">
+                    <div className="flex items-start gap-2 sm:gap-2.5 min-w-0 flex-1">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(location.id)}
+                        onChange={() => toggleSelectLocation(location.id)}
+                        className="mt-1 w-4 h-4 rounded border-slate-300 text-red-600 focus:ring-red-500 cursor-pointer accent-red-600 shrink-0"
+                        title="Pilih unit lokasi ini untuk hapus atau ekspor massal"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[10px] sm:text-[11px] font-mono font-semibold tracking-wider text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                            {location.kodeKDKMP || 'KDKMP-ID'}
                           </span>
-                        )}
-                      </h3>
+                          <span className="sm:hidden">
+                            {getStatusBadge(score.status, true)}
+                          </span>
+                        </div>
+                        <h3 className="text-sm sm:text-base font-bold text-slate-900 mt-1 leading-snug group-hover:text-red-700 transition-colors flex items-center gap-1.5 flex-wrap">
+                          <span>{location.namaLokasi}</span>
+                          {duplicateNameMap[(location.namaLokasi || '').trim().toLowerCase()]?.length > 1 && (
+                            <span
+                              className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 rounded-full"
+                              title={`Terdapat ${duplicateNameMap[(location.namaLokasi || '').trim().toLowerCase()].length} lokasi dengan nama yang sama`}
+                            >
+                              <AlertTriangle className="w-2.5 h-2.5 text-amber-700 shrink-0" />
+                              Nama Sama ({duplicateNameMap[(location.namaLokasi || '').trim().toLowerCase()].length}x)
+                            </span>
+                          )}
+                        </h3>
+                      </div>
                     </div>
 
                     {/* Circular Percentage Gauge */}
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center shrink-0">
                       <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm border-2 ${
+                        className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm border-2 ${
                           score.status === 'Sangat Siap'
                             ? 'border-emerald-500 text-emerald-700 bg-emerald-50'
                             : score.status === 'Siap Bersyarat'
@@ -1020,27 +1168,90 @@ export const LocationList: React.FC<LocationListProps> = ({
                     </div>
                   </div>
 
-                  {/* Status Badge */}
-                  <div className="mb-3">{getStatusBadge(score.status)}</div>
+                  {/* Status Badge (visible on desktop) */}
+                  <div className="hidden sm:block mb-3">{getStatusBadge(score.status)}</div>
 
                   {/* Region Information */}
-                  <div className="space-y-1 text-xs text-slate-600">
-                    <div className="flex items-center gap-1.5 text-slate-700">
+                  <div className="space-y-0.5 sm:space-y-1 text-xs text-slate-600">
+                    <div className="flex items-center gap-1.5 text-slate-700 truncate">
                       <MapPin className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                      <span className="font-medium text-slate-800">
-                        {location.desaKelurahan}, {location.kecamatan}
+                      <span className="font-medium text-slate-800 truncate text-[11px] sm:text-xs">
+                        {location.desaKelurahan ? `${location.desaKelurahan}, ` : ''}{location.kecamatan}
                       </span>
                     </div>
-                    <div className="text-[11px] text-slate-500 pl-5">
+                    <div className="text-[10px] sm:text-[11px] text-slate-500 pl-5 truncate">
                       {location.kabupatenKota}, {location.provinsi}
                     </div>
                   </div>
                 </div>
 
                 {/* Card Body - Readiness Breakdown */}
-                <div className="p-5 py-4 space-y-4 text-xs">
-                  {/* Pillar Bars - Clickable to open component tab */}
-                  <div className="space-y-2.5">
+                <div className="p-3.5 sm:p-5 py-3 sm:py-4 space-y-3 sm:space-y-4 text-xs">
+                  {/* Mobile Compact 4-Pillar Grid (< sm) */}
+                  <div className="grid grid-cols-2 gap-1.5 sm:hidden">
+                    <button
+                      type="button"
+                      onClick={() => onOpenChecklist(location, 'fisik')}
+                      className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200/80 hover:border-emerald-400 hover:bg-emerald-50/40 transition-colors text-left"
+                      title="Klik untuk edit Kelengkapan Fisik & Sarpras"
+                    >
+                      <span className="flex items-center gap-1 text-[11px] text-slate-700 font-medium truncate">
+                        <Building2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                        <span>Fisik (18)</span>
+                      </span>
+                      <span className="font-bold text-[11px] text-slate-900 ml-1">
+                        {score.fisikScore.pct}%
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => onOpenChecklist(location, 'sdm')}
+                      className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200/80 hover:border-blue-400 hover:bg-blue-50/40 transition-colors text-left"
+                      title="Klik untuk edit Kelengkapan SDM"
+                    >
+                      <span className="flex items-center gap-1 text-[11px] text-slate-700 font-medium truncate">
+                        <Users className="w-3 h-3 text-blue-600 shrink-0" />
+                        <span>SDM (4)</span>
+                      </span>
+                      <span className="font-bold text-[11px] text-slate-900 ml-1">
+                        {score.sdmScore.pct}%
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => onOpenChecklist(location, 'sistem')}
+                      className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200/80 hover:border-purple-400 hover:bg-purple-50/40 transition-colors text-left"
+                      title="Klik untuk edit Kelengkapan Sistem"
+                    >
+                      <span className="flex items-center gap-1 text-[11px] text-slate-700 font-medium truncate">
+                        <Cpu className="w-3 h-3 text-purple-600 shrink-0" />
+                        <span>Sistem (3)</span>
+                      </span>
+                      <span className="font-bold text-[11px] text-slate-900 ml-1">
+                        {score.sistemScore.pct}%
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => onOpenChecklist(location, 'produk')}
+                      className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200/80 hover:border-amber-400 hover:bg-amber-50/40 transition-colors text-left"
+                      title="Klik untuk edit Kelengkapan Produk"
+                    >
+                      <span className="flex items-center gap-1 text-[11px] text-slate-700 font-medium truncate">
+                        <ShoppingBag className="w-3 h-3 text-amber-600 shrink-0" />
+                        <span>Produk (6)</span>
+                      </span>
+                      <span className="font-bold text-[11px] text-slate-900 ml-1">
+                        {score.produkScore.pct}%
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Desktop Detailed 4-Pillar Progress Bars (sm and up) */}
+                  <div className="hidden sm:block space-y-2.5">
                     <button
                       type="button"
                       onClick={() => onOpenChecklist(location, 'fisik')}
@@ -1135,33 +1346,46 @@ export const LocationList: React.FC<LocationListProps> = ({
                   </div>
 
                   {/* Key Commodities Badges */}
-                  <div className="pt-2.5 border-t border-slate-100">
-                    <div className="text-[11px] text-slate-400 font-medium mb-1.5">Ketersediaan Komoditas Strategis:</div>
-                    <div className="flex flex-wrap gap-1.5">
+                  <div className="pt-2 sm:pt-2.5 border-t border-slate-100">
+                    <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium mb-1 sm:mb-1.5 flex items-center justify-between">
+                      <span>Komoditas Utama:</span>
+                      <span className="text-[10px] text-slate-400 sm:hidden">
+                        {[hasLPG, hasPupuk, hasBeras, hasMinyak].filter(Boolean).length}/4 Siap
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1 sm:gap-1.5">
                       <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-medium ${
-                          hasLPG ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-400 line-through'
+                        className={`px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-medium transition-colors ${
+                          hasLPG
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : 'bg-slate-100 text-slate-400 line-through'
                         }`}
                       >
                         LPG 3kg {hasLPG ? '✓' : '✗'}
                       </span>
                       <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-medium ${
-                          hasPupuk ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-400 line-through'
+                        className={`px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-medium transition-colors ${
+                          hasPupuk
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : 'bg-slate-100 text-slate-400 line-through'
                         }`}
                       >
                         Pupuk {hasPupuk ? '✓' : '✗'}
                       </span>
                       <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-medium ${
-                          hasBeras ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-400 line-through'
+                        className={`px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-medium transition-colors ${
+                          hasBeras
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : 'bg-slate-100 text-slate-400 line-through'
                         }`}
                       >
                         Beras SPHP {hasBeras ? '✓' : '✗'}
                       </span>
                       <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-medium ${
-                          hasMinyak ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-400 line-through'
+                        className={`px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-medium transition-colors ${
+                          hasMinyak
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : 'bg-slate-100 text-slate-400 line-through'
                         }`}
                       >
                         Minyakita {hasMinyak ? '✓' : '✗'}
@@ -1169,46 +1393,48 @@ export const LocationList: React.FC<LocationListProps> = ({
                     </div>
                   </div>
 
-                  {/* Visit Date & Surveyor */}
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-                    <span className="inline-flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-slate-400" />
-                      {location.tanggalKunjungan || '-'}
-                    </span>
-                    <span className="inline-flex items-center gap-1 truncate max-w-[150px]" title={location.namaPetugas}>
-                      <User className="w-3 h-3 text-slate-400" />
-                      {location.namaPetugas || 'Petugas'}
-                    </span>
-                  </div>
-
-                  {/* Last Update Info */}
-                  <div className="pt-1.5 flex items-center justify-between text-[10px] text-slate-400">
-                    <span className="inline-flex items-center gap-1" title={`Diupdate: ${formatIndonesianDate(location.updatedAt)}`}>
-                      <Clock className="w-3 h-3 text-blue-500" />
-                      <span>Update: {formatRelativeTime(location.updatedAt).text}</span>
-                    </span>
-                    {formatRelativeTime(location.updatedAt).isRecent && (
-                      <span className="text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200 px-1 py-0.2 rounded">
-                        Baru Diupdate
+                  {/* Visit Date & Surveyor & Last Update */}
+                  <div className="pt-2 border-t border-slate-100 space-y-1 text-[10px] sm:text-[11px] text-slate-500">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-1 truncate">
+                        <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+                        <span className="truncate">{location.tanggalKunjungan || '-'}</span>
                       </span>
-                    )}
+                      <span className="inline-flex items-center gap-1 truncate max-w-[140px] sm:max-w-[160px]" title={location.namaPetugas}>
+                        <User className="w-3 h-3 text-slate-400 shrink-0" />
+                        <span className="truncate">{location.namaPetugas || 'Petugas'}</span>
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[9px] sm:text-[10px] text-slate-400 pt-0.5">
+                      <span className="inline-flex items-center gap-1" title={`Diupdate: ${formatIndonesianDate(location.updatedAt)}`}>
+                        <Clock className="w-3 h-3 text-blue-500 shrink-0" />
+                        <span>Update: {formatRelativeTime(location.updatedAt).text}</span>
+                      </span>
+                      {formatRelativeTime(location.updatedAt).isRecent && (
+                        <span className="text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200 px-1 py-0.2 rounded">
+                          Baru Diupdate
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 {/* Card Footer Actions */}
-                <div className="p-3 bg-slate-50/80 border-t border-slate-200/80 flex items-center justify-between gap-1">
+                <div className="p-2.5 sm:p-3 bg-slate-50/80 border-t border-slate-200/80 flex items-center justify-between gap-1.5">
                   <button
                     onClick={() => onOpenChecklist(location)}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-semibold shadow-sm transition-colors"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-semibold shadow-xs transition-colors truncate"
                   >
-                    <FileCheck className="w-3.5 h-3.5" />
-                    Input & Edit Checklist
+                    <FileCheck className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">Input Checklist</span>
                   </button>
 
                   <button
                     onClick={() => onOpenPdfPreview(location)}
                     title="Pratinjau & Cetak Lembar Checklist Resmi"
-                    className="p-2 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 transition-colors"
+                    className="p-1.5 sm:p-2 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 transition-colors shrink-0"
+                    aria-label="Cetak PDF Resmi"
                   >
                     <FileText className="w-4 h-4 text-blue-600" />
                   </button>
@@ -1216,7 +1442,8 @@ export const LocationList: React.FC<LocationListProps> = ({
                   <button
                     onClick={() => onOpenEditLocation(location)}
                     title="Ubah Identitas Wilayah & Lokasi"
-                    className="p-2 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 transition-colors"
+                    className="p-1.5 sm:p-2 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 transition-colors shrink-0"
+                    aria-label="Edit Lokasi"
                   >
                     <Edit className="w-4 h-4 text-slate-600" />
                   </button>
@@ -1224,7 +1451,8 @@ export const LocationList: React.FC<LocationListProps> = ({
                   <button
                     onClick={() => onOpenDeleteConfirm(location)}
                     title="Hapus Lokasi"
-                    className="p-2 rounded-lg bg-white hover:bg-rose-50 text-rose-600 border border-slate-200 transition-colors"
+                    className="p-1.5 sm:p-2 rounded-lg bg-white hover:bg-rose-50 text-rose-600 border border-slate-200 transition-colors shrink-0"
+                    aria-label="Hapus Lokasi"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -1308,6 +1536,15 @@ export const LocationList: React.FC<LocationListProps> = ({
             <table className="w-full text-left text-xs text-slate-600">
               <thead className="bg-slate-50 text-slate-700 uppercase font-bold text-[11px] tracking-wider border-b border-slate-200">
                 <tr>
+                  <th className="py-3 px-3 w-10 text-center">
+                    <input
+                      type="checkbox"
+                      checked={filteredLocations.length > 0 && selectedIds.size === filteredLocations.length}
+                      onChange={handleSelectAll}
+                      className="w-4 h-4 rounded border-slate-300 text-red-600 focus:ring-red-500 cursor-pointer accent-red-600"
+                      title="Pilih / Batalkan Semua Lokasi"
+                    />
+                  </th>
                   <th className="py-3 px-4">No</th>
                   <th className={`py-3 px-4 transition-colors ${isSortActive('name') || isSortActive('code') ? 'bg-red-50/70 text-red-950 font-extrabold' : ''}`}>
                     <div className="flex items-center justify-between gap-1.5">
@@ -1414,7 +1651,23 @@ export const LocationList: React.FC<LocationListProps> = ({
                 {filteredLocations.map((location, idx) => {
                   const score = calculateReadiness(location.checklist);
                   return (
-                    <tr key={location.id} className="hover:bg-slate-50/80 transition-colors">
+                    <tr
+                      key={location.id}
+                      className={`transition-colors ${
+                        selectedIds.has(location.id)
+                          ? 'bg-red-50/60 hover:bg-red-50/80'
+                          : 'hover:bg-slate-50/80'
+                      }`}
+                    >
+                      <td className="py-3.5 px-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(location.id)}
+                          onChange={() => toggleSelectLocation(location.id)}
+                          className="w-4 h-4 rounded border-slate-300 text-red-600 focus:ring-red-500 cursor-pointer accent-red-600"
+                          title="Pilih unit lokasi ini"
+                        />
+                      </td>
                       <td className="py-3.5 px-4 font-medium text-slate-400">{idx + 1}</td>
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-1.5 flex-wrap">
@@ -1595,6 +1848,35 @@ export const LocationList: React.FC<LocationListProps> = ({
           </div>
         </div>
       )}
+
+      {/* Bulk Delete Confirm Modal */}
+      <BulkDeleteConfirmModal
+        isOpen={isBulkDeleteModalOpen}
+        selectedLocations={locations.filter(l => selectedIds.has(l.id))}
+        onClose={() => setIsBulkDeleteModalOpen(false)}
+        onConfirm={() => {
+          if (onBulkDelete) {
+            onBulkDelete(Array.from(selectedIds));
+          }
+          setSelectedIds(new Set());
+          setIsBulkDeleteModalOpen(false);
+        }}
+      />
+
+      {/* Clear All Locations Confirm Modal */}
+      <BulkDeleteConfirmModal
+        isOpen={isClearAllModalOpen}
+        selectedLocations={locations}
+        onClose={() => setIsClearAllModalOpen(false)}
+        isAll={true}
+        onConfirm={() => {
+          if (onClearAll) {
+            onClearAll();
+          }
+          setSelectedIds(new Set());
+          setIsClearAllModalOpen(false);
+        }}
+      />
     </div>
   );
 };

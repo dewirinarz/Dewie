@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Locations collection for KDKMP readiness checklist app (no login required as requested)
+    match /locations/{locationId} {
+      allow read: if true;
+      allow create, update: if isValidId(locationId)
+        && request.resource.data.id is string
+        && request.resource.data.namaLokasi is string
+        && request.resource.data.namaLokasi.size() <= 300;
+      allow delete: if isValidId(locationId);
+    }
+
+    // System collection for initialization and seed flags
+    match /system/{docId} {
+      allow read, write: if isValidId(docId);
+    }
+  }
+}

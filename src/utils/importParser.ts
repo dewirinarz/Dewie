@@ -1,10 +1,11 @@
 import * as XLSX from 'xlsx';
 import { KDKMPLocation, KDKMPChecklist, createEmptyChecklist } from '../types/kdkmp';
 import { downloadOfficialKDKMPExcelTemplate } from './excelTemplateUtils';
+import { generateRandomKDKMPCode } from './kemendagriCodes';
 
 export const PURBAYAN_PARSED_DATA: KDKMPLocation = {
   id: 'kdkmp-purbayan',
-  kodeKDKMP: 'KDMP-JT-034',
+  kodeKDKMP: '33.11.KDKMP.034',
   namaLokasi: 'KDMP Purbayan',
   provinsi: 'Jawa Tengah',
   kabupatenKota: 'Kabupaten Sukoharjo',
@@ -194,16 +195,17 @@ function cleanKey(val: string): string {
 export function createEmptyChecklistLocation(name: string): KDKMPLocation {
   return {
     id: `kdkmp-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-    kodeKDKMP: `KDKMP-${Math.floor(100 + Math.random() * 900)}`,
-    namaLokasi: name || 'Unit KDKMP Baru',
-    provinsi: 'Jawa Barat',
+    kodeKDKMP: '',
+    namaLokasi: name || '',
+    provinsi: '',
     kabupatenKota: '',
     kecamatan: '',
     desaKelurahan: '',
     alamatLengkap: '',
     namaPetugas: '',
     kontakPerson: '',
-    tanggalKunjungan: new Date().toISOString().slice(0, 10),
+    tanggalKunjungan: '',
+    catatanTambahan: '',
     checklist: createEmptyChecklist(),
     updatedAt: new Date().toISOString()
   };
@@ -351,14 +353,15 @@ export async function parseExcelFile(file: File): Promise<{
         return '';
       };
 
-      const nama = getVal(['nama', 'namalokasi', 'unit', 'kdkmp', 'namakdkmp']) || `KDKMP Baris ${idx + 1}`;
-      const kode = getVal(['kode', 'kodekdkmp', 'id', 'kodeunit']) || `KDKMP-EXL-${Math.floor(100 + idx)}`;
-      const prov = getVal(['provinsi', 'prov']) || 'Jawa Barat';
+      const idVal = getVal(['id', 'uuid', 'idlokasi']);
+      const nama = getVal(['nama', 'namalokasi', 'unit', 'kdkmp', 'namakdkmp']) || (idVal ? `KDKMP ${idVal}` : `KDKMP Baris ${idx + 1}`);
+      const kode = getVal(['kode', 'kodekdkmp', 'kodeunit']) || '';
+      const prov = getVal(['provinsi', 'prov']) || '';
       const kab = getVal(['kabupaten', 'kabupatenkota', 'kota', 'kab']) || '';
       const kec = getVal(['kecamatan', 'kec']) || '';
       const desa = getVal(['desa', 'desakelurahan', 'kelurahan']) || '';
       const alamat = getVal(['alamat', 'alamatlengkap']) || '';
-      const tgl = getVal(['tanggal', 'tanggalkunjungan', 'date']) || new Date().toISOString().slice(0, 10);
+      const tgl = getVal(['tanggal', 'tanggalkunjungan', 'date']) || '';
       const petugas = getVal(['petugas', 'namapetugas', 'surveyor', 'verifikator']) || '';
       const kontak = getVal(['kontak', 'kontakperson', 'nohp', 'telepon']) || '';
       const catatan = getVal(['catatan', 'catatantambahan', 'keterangan']) || '';
@@ -366,16 +369,17 @@ export async function parseExcelFile(file: File): Promise<{
       const lngVal = parseFloat(getVal(['longitude', 'lng', 'lon']));
 
       const loc = createEmptyChecklistLocation(nama);
+      if (idVal) loc.id = idVal;
       loc.kodeKDKMP = kode;
       loc.provinsi = prov;
       loc.kabupatenKota = kab;
       loc.kecamatan = kec;
       loc.desaKelurahan = desa;
-      loc.alamatLengkap = alamat || (desa ? `${desa}, Kec. ${kec}, ${kab}, ${prov}` : '');
+      loc.alamatLengkap = alamat;
       loc.tanggalKunjungan = tgl;
       loc.namaPetugas = petugas;
       loc.kontakPerson = kontak;
-      loc.catatanTambahan = catatan ? `${catatan} (Sumber: ${file.name})` : `Diimpor dari file Excel: ${file.name}`;
+      loc.catatanTambahan = catatan;
       if (!isNaN(latVal) && !isNaN(lngVal)) {
         loc.latitude = latVal;
         loc.longitude = lngVal;
@@ -599,18 +603,6 @@ export async function parseExcelFile(file: File): Promise<{
         loc.checklist.transaksi.kendalaDanDukungan.keterangan = getVal(['bentukdukungandiperlukan', 'dukungan', 'butuhdukungan', 'keterangandukungan', 'keterangankendala']);
       }
 
-      // Default reasonable starting points if minimal columns supplied
-      if (!gudangVal && !geraiVal) {
-        loc.checklist.fisikSarpras.bangunanGudang.status = 'ada';
-        loc.checklist.fisikSarpras.bangunanGerai.status = 'ada';
-        loc.checklist.fisikSarpras.instalasiListrik.status = 'ada';
-        loc.checklist.fisikSarpras.instalasiAirBersih.status = 'ada';
-        loc.checklist.sdm.manajerKD.status = 'ada';
-        loc.checklist.produk.lpg3kg.status = 'ada';
-        loc.checklist.produk.berasSPHP.status = 'ada';
-        loc.checklist.produk.minyakita.status = 'ada';
-      }
-
       locations.push(loc);
     });
 
@@ -683,35 +675,76 @@ export function parseCSVText(csv: string): KDKMPLocation[] {
       return '';
     };
 
-    const kode = getVal(['kode', 'kodekdkmp', 'id']) || values[0] || `KDKMP-CSV-${i}`;
-    const nama = getVal(['nama', 'namalokasi', 'unit']) || values[1] || `KDKMP Baris ${i}`;
-    const prov = getVal(['provinsi', 'prov']) || values[2] || 'Jawa Barat';
-    const kab = getVal(['kabupaten', 'kabupatenkota', 'kota', 'kab']) || values[3] || '';
-    const kec = getVal(['kecamatan', 'kec']) || values[4] || '';
-    const desa = getVal(['desa', 'desakelurahan']) || values[5] || '';
-    const tgl = getVal(['tanggal', 'tanggalkunjungan']) || values[6] || new Date().toISOString().slice(0, 10);
-    const petugas = getVal(['petugas', 'namapetugas']) || values[7] || '';
+    const idVal = getVal(['id', 'uuid', 'idlokasi']);
+    const kode = getVal(['kode', 'kodekdkmp', 'kodeunit']) || '';
+    const nama = getVal(['nama', 'namalokasi', 'unit']) || (idVal ? `KDKMP ${idVal}` : `KDKMP Baris ${i}`);
+    const prov = getVal(['provinsi', 'prov']) || '';
+    const kab = getVal(['kabupaten', 'kabupatenkota', 'kota', 'kab']) || '';
+    const kec = getVal(['kecamatan', 'kec']) || '';
+    const desa = getVal(['desa', 'desakelurahan']) || '';
+    const alamat = getVal(['alamat', 'alamatlengkap']) || '';
+    const tgl = getVal(['tanggal', 'tanggalkunjungan']) || '';
+    const petugas = getVal(['petugas', 'namapetugas']) || '';
+    const kontak = getVal(['kontak', 'kontakperson', 'nohp', 'telepon']) || '';
+    const catatan = getVal(['catatan', 'catatantambahan', 'keterangan']) || '';
+    const latVal = parseFloat(getVal(['latitude', 'lat']));
+    const lngVal = parseFloat(getVal(['longitude', 'lng', 'lon']));
 
     const loc = createEmptyChecklistLocation(nama);
+    if (idVal) loc.id = idVal;
     loc.kodeKDKMP = kode;
     loc.provinsi = prov;
     loc.kabupatenKota = kab;
     loc.kecamatan = kec;
     loc.desaKelurahan = desa;
-    loc.alamatLengkap = `${desa ? `${desa}, ` : ''}${kec ? `Kec. ${kec}, ` : ''}${kab ? `${kab}, ` : ''}${prov}`;
+    loc.alamatLengkap = alamat;
     loc.tanggalKunjungan = tgl;
     loc.namaPetugas = petugas;
-    loc.catatanTambahan = `Diimpor dari file CSV (Baris ${i + 1})`;
+    loc.kontakPerson = kontak;
+    loc.catatanTambahan = catatan;
+    if (!isNaN(latVal) && !isNaN(lngVal)) {
+      loc.latitude = latVal;
+      loc.longitude = lngVal;
+    }
 
-    // Check basic readiness indicators
-    loc.checklist.fisikSarpras.bangunanGudang.status = 'ada';
-    loc.checklist.fisikSarpras.bangunanGerai.status = 'ada';
-    loc.checklist.fisikSarpras.instalasiListrik.status = 'ada';
-    loc.checklist.fisikSarpras.instalasiAirBersih.status = 'ada';
-    loc.checklist.sdm.manajerKD.status = 'ada';
-    loc.checklist.produk.lpg3kg.status = 'ada';
-    loc.checklist.produk.berasSPHP.status = 'ada';
-    loc.checklist.produk.minyakita.status = 'ada';
+    // Check for checklist indicators in columns if populated
+    const checkStatus = (val: string): 'ada' | 'tidak_ada' => {
+      const v = val.toLowerCase().trim();
+      return v === 'ada' || v === 'ya' || v === 'true' || v === '1' || v === 'v' || v === 'yes' ? 'ada' : 'tidak_ada';
+    };
+
+    const gudangVal = getVal(['bangunangudang', 'gudang']);
+    if (gudangVal) loc.checklist.fisikSarpras.bangunanGudang.status = checkStatus(gudangVal);
+
+    const geraiVal = getVal(['bangunangerai', 'gerai']);
+    if (geraiVal) loc.checklist.fisikSarpras.bangunanGerai.status = checkStatus(geraiVal);
+
+    const listrikVal = getVal(['instalasilistrik', 'listrik']);
+    if (listrikVal) loc.checklist.fisikSarpras.instalasiListrik.status = checkStatus(listrikVal);
+
+    const airVal = getVal(['instalasiairbersih', 'airbersih', 'air']);
+    if (airVal) loc.checklist.fisikSarpras.instalasiAirBersih.status = checkStatus(airVal);
+
+    const klinikVal = getVal(['fasilitasklinik', 'klinik']);
+    if (klinikVal) loc.checklist.fisikSarpras.fasilitasKlinik.status = checkStatus(klinikVal);
+
+    const obatApotekVal = getVal(['rakobatapotek', 'rakobat', 'apotek']);
+    if (obatApotekVal) loc.checklist.fisikSarpras.rakObatApotek.status = checkStatus(obatApotekVal);
+
+    const manajerVal = getVal(['manajerkd', 'manajer']);
+    if (manajerVal) loc.checklist.sdm.manajerKD.status = checkStatus(manajerVal);
+
+    const lpgVal = getVal(['lpg3kg', 'lpg']);
+    if (lpgVal) loc.checklist.produk.lpg3kg.status = checkStatus(lpgVal);
+
+    const pupukVal = getVal(['pupukbersubsidi', 'pupuk']);
+    if (pupukVal) loc.checklist.produk.pupukBersubsidi.status = checkStatus(pupukVal);
+
+    const berasVal = getVal(['berassphp', 'beras']);
+    if (berasVal) loc.checklist.produk.berasSPHP.status = checkStatus(berasVal);
+
+    const minyakVal = getVal(['minyakita', 'minyak']);
+    if (minyakVal) loc.checklist.produk.minyakita.status = checkStatus(minyakVal);
 
     locations.push(loc);
   }
@@ -833,7 +866,6 @@ export async function parseKDKMPFile(file: File): Promise<{
 
       const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
       const newLoc = createEmptyChecklistLocation(cleanName || 'KDKMP Scan Formulir Lapangan');
-      newLoc.catatanTambahan = `Diimpor dari foto/scan fisik: ${file.name}`;
 
       // Call OCR endpoint if available
       try {
@@ -871,12 +903,6 @@ export async function parseKDKMPFile(file: File): Promise<{
         console.warn('OCR endpoint not reachable or skipped:', ocrErr);
       }
 
-      // Fallback if OCR skipped
-      newLoc.checklist.fisikSarpras.bangunanGudang.status = 'ada';
-      newLoc.checklist.fisikSarpras.bangunanGerai.status = 'ada';
-      newLoc.checklist.sdm.manajerKD.status = 'ada';
-      newLoc.checklist.produk.lpg3kg.status = 'ada';
-
       return {
         success: true,
         singleLocation: newLoc,
@@ -911,7 +937,7 @@ export async function parseKDKMPFile(file: File): Promise<{
     };
   }
 
-  // 6. Generic PDF file
+  // 6. PDF File (Supports Handwritten PDF forms, Scanned Inspection PDF, and Digital PDF)
   if (fileNameLower.endsWith('.pdf')) {
     try {
       const cleanName = file.name
@@ -919,6 +945,62 @@ export async function parseKDKMPFile(file: File): Promise<{
         .replace(/[_-]/g, ' ')
         .replace(/^\d+\.\s*/, '');
 
+      // Convert PDF to base64 DataURL
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const base64 = await base64Promise;
+
+      // Attempt AI OCR / Handwriting scan via server endpoint
+      try {
+        const ocrRes = await fetch('/api/scan-handwriting', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            image: base64,
+            mimeType: 'application/pdf',
+            fileName: file.name
+          })
+        });
+
+        if (ocrRes.ok) {
+          const resJson = await ocrRes.json();
+          if (resJson.success && resJson.data) {
+            const data = resJson.data;
+            const newLoc = createEmptyChecklistLocation(data.namaLokasi || cleanName || 'KDKMP Scan Formulir PDF');
+            if (data.kodeKDKMP) newLoc.kodeKDKMP = data.kodeKDKMP;
+            if (data.provinsi) newLoc.provinsi = data.provinsi;
+            if (data.kabupatenKota) newLoc.kabupatenKota = data.kabupatenKota;
+            if (data.kecamatan) newLoc.kecamatan = data.kecamatan;
+            if (data.desaKelurahan) newLoc.desaKelurahan = data.desaKelurahan;
+            if (data.alamatLengkap) newLoc.alamatLengkap = data.alamatLengkap;
+            if (data.tanggalKunjungan) newLoc.tanggalKunjungan = data.tanggalKunjungan;
+            if (data.namaPetugas) newLoc.namaPetugas = data.namaPetugas;
+            if (data.kontakPerson) newLoc.kontakPerson = data.kontakPerson;
+            if (data.catatanTambahan) newLoc.catatanTambahan = data.catatanTambahan;
+            if (data.checklist) {
+              newLoc.checklist = {
+                ...newLoc.checklist,
+                ...data.checklist
+              };
+            }
+            return {
+              success: true,
+              singleLocation: newLoc,
+              detectedType: 'purbayan_pdf',
+              fileName: file.name,
+              message: `AI OCR sukses membaca formulir PDF tulisan tangan "${file.name}". Hasil verifikasi & checklist berhasil diekstrak.`
+            };
+          }
+        }
+      } catch (ocrErr) {
+        console.warn('PDF AI OCR skipped or endpoint unavailable, falling back:', ocrErr);
+      }
+
+      // Fallback: check if text contains Purbayan or create clean checklist
       const arrayBuffer = await file.arrayBuffer();
       const uint8 = new Uint8Array(arrayBuffer);
       const textContent = new TextDecoder('latin1').decode(uint8);
@@ -935,23 +1017,13 @@ export async function parseKDKMPFile(file: File): Promise<{
         };
       }
 
-      const newLoc = createEmptyChecklistLocation(cleanName || 'KDKMP Hasil Scan PDF');
-      newLoc.catatanTambahan = `Diimpor dari file berkas: ${file.name}`;
-      newLoc.checklist.fisikSarpras.bangunanGudang.status = 'ada';
-      newLoc.checklist.fisikSarpras.bangunanGerai.status = 'ada';
-      newLoc.checklist.fisikSarpras.instalasiListrik.status = 'ada';
-      newLoc.checklist.fisikSarpras.instalasiAirBersih.status = 'ada';
-      newLoc.checklist.sdm.manajerKD.status = 'ada';
-      newLoc.checklist.produk.lpg3kg.status = 'ada';
-      newLoc.checklist.produk.berasSPHP.status = 'ada';
-      newLoc.checklist.produk.minyakita.status = 'ada';
-
+      const fallbackLoc = createEmptyChecklistLocation(cleanName || 'KDKMP Hasil Scan PDF');
       return {
         success: true,
-        singleLocation: newLoc,
+        singleLocation: fallbackLoc,
         detectedType: 'generic_pdf',
         fileName: file.name,
-        message: `File PDF "${file.name}" berhasil dibaca dan dibuatkan lembar checklist.`
+        message: `File PDF "${file.name}" berhasil diunggah dan dibuatkan lembar checklist.`
       };
     } catch (e: any) {
       return {
@@ -987,12 +1059,6 @@ export async function parseMultipleKDKMPFiles(
     try {
       const parsed = await parseKDKMPFile(file);
       const locations = parsed.locations || (parsed.singleLocation ? [parsed.singleLocation] : []);
-
-      locations.forEach(loc => {
-        loc.catatanTambahan = loc.catatanTambahan
-          ? `${loc.catatanTambahan} (Sumber Berkas: ${file.name})`
-          : `Diimpor dari berkas: ${file.name}`;
-      });
 
       results.push({
         fileId,
@@ -1037,9 +1103,9 @@ export function downloadKDKMPExcelTemplate(): void {
 export function downloadKDKMPCsvTemplate(): void {
   const csvContent =
     'Kode KDKMP,Nama Lokasi KDKMP,Provinsi,Kabupaten Kota,Kecamatan,Desa Kelurahan,Tanggal Kunjungan,Petugas Surveyor,Kontak,Catatan\n' +
-    'KDMP-JB-101,KDMP Sukajaya,Jawa Barat,Kabupaten Bogor,Kecamatan Cigudeg,Desa Sukajaya,2026-10-20,Budi Prakoso,081234567890,Gerai siap operasional\n' +
-    'KDMP-JT-205,KDMP Wonosari,Jawa Tengah,Kabupaten Klaten,Kecamatan Trucuk,Desa Wonosari,2026-10-22,Siti Nurhaliza,085678901234,Stok pangan lengkap\n' +
-    'KDMP-JI-312,KDMP Karangploso,Jawa Timur,Kabupaten Malang,Kecamatan Karangploso,Desa Girimoyo,2026-10-24,Ahmad Zulkarnain,087811223344,Kesiapan tinggi';
+    '32.01.KDKMP.101,KDMP Sukajaya,Jawa Barat,Kabupaten Bogor,Kecamatan Cigudeg,Desa Sukajaya,2026-10-20,Budi Prakoso,081234567890,Gerai siap operasional\n' +
+    '33.10.KDKMP.205,KDMP Wonosari,Jawa Tengah,Kabupaten Klaten,Kecamatan Trucuk,Desa Wonosari,2026-10-22,Siti Nurhaliza,085678901234,Stok pangan lengkap\n' +
+    '35.07.KDKMP.312,KDMP Karangploso,Jawa Timur,Kabupaten Malang,Kecamatan Karangploso,Desa Girimoyo,2026-10-24,Ahmad Zulkarnain,087811223344,Kesiapan tinggi';
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
@@ -1454,9 +1520,15 @@ export const SAMPLE_BULK_25_LOCATIONS: KDKMPLocation[] = [
     catatanTambahan: 'Batch Import: Kesiapan 92%. Koperasi binaan terpadu dengan BUMDes.',
     latitude: -8.134,
     longitude: 112.571,
-    checklist: JSON.parse(JSON.stringify(PURBAYAN_PARSED_DATA.checklist))
   }
 ];
+
+// Pastikan seluruh data bulk preset diawali kode Kemendagri: [Kode Prov].[Kode Kab].KDKMP.[No]
+SAMPLE_BULK_25_LOCATIONS.forEach((loc, idx) => {
+  if (!loc.kodeKDKMP || !/^\d{2}\.\d{2}/.test(loc.kodeKDKMP)) {
+    loc.kodeKDKMP = generateRandomKDKMPCode(loc.provinsi, loc.kabupatenKota, idx + 1);
+  }
+});
 
 export const SAMPLE_BATCH_PRESETS: { fileName: string; fileSize: number; location: KDKMPLocation }[] = [
   {

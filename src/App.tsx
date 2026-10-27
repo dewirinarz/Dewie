@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Navbar } from './components/Navbar';
 import { LocationList } from './components/LocationList';
 import { StatisticsView } from './components/StatisticsView';
@@ -9,47 +9,41 @@ import { DeleteConfirmModal } from './components/DeleteConfirmModal';
 import { OfficialPdfPreviewModal } from './components/OfficialPdfPreviewModal';
 import { ImportModal } from './components/ImportModal';
 import { MapView } from './components/MapView';
-import { AuthModal } from './components/AuthModal';
-import { UserManagementModal } from './components/UserManagementModal';
 import { GoogleDriveModal } from './components/GoogleDriveModal';
 import { KDKMPLocation, KDKMPChecklist, createEmptyChecklist } from './types/kdkmp';
 import { INITIAL_LOCATIONS } from './data/defaultData';
 import { exportSummaryCsv, exportBlankChecklistPdf } from './utils/exportUtils';
-import { useAuth } from './context/AuthContext';
-import { ROLE_LABELS } from './types/auth';
 import {
-  Check,
-  Shield,
-  LogIn,
-  AlertTriangle,
-  Server,
-  Sparkles,
-  Users
-} from 'lucide-react';
-
-const STORAGE_KEY = 'kdkmp_locations_v1';
+  testConnection,
+  subscribeToLocations,
+  saveLocationToFirestore,
+  deleteLocationFromFirestore,
+  deleteMultipleLocationsFromFirestore,
+  deleteAllLocationsFromFirestore,
+  saveMultipleLocationsToFirestore,
+  resetLocationsInFirestore
+} from './services/firebase';
+import {
+  getQuickCachedLocations,
+  loadLocationsFromIndexedDB,
+  cacheLocations,
+  clearLocationsCache
+} from './utils/storageUtils';
+import { generateRandomKDKMPCode } from './utils/kemendagriCodes';
+import { Check } from 'lucide-react';
 
 export default function App() {
-  const { user, isAuthenticated, permissions } = useAuth();
-
-  // Locations State
+  // Locations State (Initialized from quick local cache or fallback to INITIAL_LOCATIONS)
   const [locations, setLocations] = useState<KDKMPLocation[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-    } catch (e) {
-      console.error('Failed to load locations from localStorage', e);
+    const cached = getQuickCachedLocations();
+    if (cached && cached.length > 0) {
+      return cached;
     }
     return INITIAL_LOCATIONS;
   });
 
+  const [cloudSyncStatus, setCloudSyncStatus] = useState<'synced' | 'syncing' | 'offline'>('syncing');
   const [activeTab, setActiveTab] = useState<'locations' | 'map' | 'statistics' | 'originalPdf'>('locations');
-  const [isBackendConnected, setIsBackendConnected] = useState(false);
 
   // Modals state
   const [isChecklistOpen, setIsChecklistOpen] = useState(false);
@@ -68,11 +62,6 @@ export default function App() {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isGoogleDriveOpen, setIsGoogleDriveOpen] = useState(false);
 
-  // Auth & User Management Modals
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
-  const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
-
   // Toast notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -83,40 +72,52 @@ export default function App() {
     }, 4000);
   }, []);
 
-  // Fetch from backend API on mount
+  const isStorageReadyRef = useRef<boolean>(false);
+
+  // Save to persistent offline cache whenever locations change, but NEVER before storage initialization
   useEffect(() => {
-    const fetchBackendData = async () => {
-      try {
-        const healthRes = await fetch('/api/health');
-        if (healthRes.ok) {
-          setIsBackendConnected(true);
-        }
-
-        const res = await fetch('/api/locations');
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-            setLocations(json.data);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(json.data));
-          }
-        }
-      } catch (err) {
-        console.warn('Backend server fetch failed, using local offline copy:', err);
-        setIsBackendConnected(false);
-      }
-    };
-
-    fetchBackendData();
-  }, []);
-
-  // Sync to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(locations));
-    } catch (e) {
-      console.error('Failed to save locations to localStorage', e);
-    }
+    if (!isStorageReadyRef.current) return;
+    cacheLocations(locations, true);
   }, [locations]);
+
+  // Connect to Firestore and subscribe to real-time updates so data persists when published
+  useEffect(() => {
+    let isMounted = true;
+
+    // Check IndexedDB on mount to restore existing data and prevent resetting
+    loadLocationsFromIndexedDB()
+      .then((idbLocations) => {
+        if (!isMounted) return;
+        if (idbLocations && idbLocations.length > 0) {
+          setLocations(idbLocations);
+        }
+        isStorageReadyRef.current = true;
+      })
+      .catch((err) => {
+        console.warn('IndexedDB initial read error:', err);
+        isStorageReadyRef.current = true;
+      });
+
+    testConnection().catch(() => {});
+    const unsubscribe = subscribeToLocations(
+      (cloudLocations) => {
+        if (!isMounted) return;
+        if (cloudLocations && cloudLocations.length > 0) {
+          setLocations(cloudLocations);
+          cacheLocations(cloudLocations, true);
+        }
+        setCloudSyncStatus('synced');
+      },
+      (err) => {
+        console.warn('Firestore offline/fallback to local cache:', err);
+        setCloudSyncStatus('offline');
+      }
+    );
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, []);
 
   const handleOpenChecklistModal = (
     loc: KDKMPLocation,
@@ -139,29 +140,23 @@ export default function App() {
       ...selectedLocationForChecklist,
       checklist: updatedChecklist,
       tanggalKunjungan: visitDate,
-      namaPetugas: officerName || (user?.name || selectedLocationForChecklist.namaPetugas),
+      namaPetugas: officerName || selectedLocationForChecklist.namaPetugas,
       updatedAt: new Date().toISOString()
     };
 
-    // Optimistic local state update
     setLocations(prev =>
       prev.map(loc => (loc.id === updatedLoc.id ? updatedLoc : loc))
     );
     setSelectedLocationForChecklist(updatedLoc);
-
-    // Backend API persistence
-    try {
-      await fetch(`/api/locations/${encodeURIComponent(updatedLoc.id)}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedLoc)
-      });
-    } catch (e) {
-      console.warn('Could not persist checklist to backend API, saved locally:', e);
-    }
-
-    showToast(`✓ Checklist kesiapan "${updatedLoc.namaLokasi}" berhasil disimpan ke server! (Tersimpan aman walaupun belum lengkap)`);
     setIsChecklistOpen(false);
+
+    try {
+      await saveLocationToFirestore(updatedLoc);
+      showToast(`✓ Checklist kesiapan "${updatedLoc.namaLokasi}" berhasil disimpan ke Cloud!`);
+    } catch (err) {
+      console.error('Gagal sinkron checklist ke Cloud:', err);
+      showToast(`✓ Checklist tersimpan di peramban.`);
+    }
   };
 
   // Handler: Add or Edit Location
@@ -177,30 +172,28 @@ export default function App() {
       setLocations(prev =>
         prev.map(loc => (loc.id === selectedLocationForEdit.id ? updated : loc))
       );
+      setIsLocationFormOpen(false);
+      setSelectedLocationForEdit(null);
 
       try {
-        await fetch(`/api/locations/${encodeURIComponent(updated.id)}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updated)
-        });
-      } catch (e) {
-        console.warn('Backend update error, saved locally:', e);
+        await saveLocationToFirestore(updated);
+        showToast(`✓ Data lokasi "${formData.namaLokasi || 'KDKMP'}" berhasil disimpan di Cloud!`);
+      } catch (err) {
+        console.error('Gagal simpan ke Cloud:', err);
+        showToast(`✓ Data lokasi berhasil diperbarui secara lokal.`);
       }
-
-      showToast(`✓ Data lokasi "${formData.namaLokasi || 'KDKMP'}" berhasil diperbarui di server!`);
     } else {
       // Add new
       const newLocation: KDKMPLocation = {
         id: `kdkmp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-        kodeKDKMP: formData.kodeKDKMP || `KDKMP-${Math.floor(100 + Math.random() * 900)}`,
+        kodeKDKMP: formData.kodeKDKMP || generateRandomKDKMPCode(formData.provinsi, formData.kabupatenKota),
         namaLokasi: formData.namaLokasi || 'Unit KDKMP Baru (Draf)',
         provinsi: formData.provinsi || 'Jawa Barat',
         kabupatenKota: formData.kabupatenKota || '',
         kecamatan: formData.kecamatan || '',
         desaKelurahan: formData.desaKelurahan || '',
         alamatLengkap: formData.alamatLengkap || '',
-        namaPetugas: formData.namaPetugas || (user?.name || ''),
+        namaPetugas: formData.namaPetugas || '',
         kontakPerson: formData.kontakPerson || '',
         tanggalKunjungan: formData.tanggalKunjungan || new Date().toISOString().slice(0, 10),
         catatanTambahan: formData.catatanTambahan || '',
@@ -209,26 +202,17 @@ export default function App() {
       };
 
       setLocations(prev => [newLocation, ...prev]);
+      setIsLocationFormOpen(false);
+      setSelectedLocationForEdit(null);
 
       try {
-        const res = await fetch('/api/locations', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newLocation)
-        });
-        const resJson = await res.json();
-        if (resJson.isDuplicate) {
-          showToast(`⚠️ Perhatian: Nama "${newLocation.namaLokasi}" sudah ada, namun tetap berhasil disimpan di database.`);
-        } else {
-          showToast(`✓ Lokasi "${newLocation.namaLokasi}" berhasil disimpan ke backend! (Data tersimpan walaupun form belum lengkap)`);
-        }
-      } catch (e) {
-        showToast(`✓ Lokasi "${newLocation.namaLokasi}" berhasil disimpan! (Data tetap tersimpan offline walaupun belum lengkap)`);
+        await saveLocationToFirestore(newLocation);
+        showToast(`✓ Lokasi "${newLocation.namaLokasi}" berhasil ditambahkan & tersimpan di Cloud!`);
+      } catch (err) {
+        console.error('Gagal simpan ke Cloud:', err);
+        showToast(`✓ Lokasi baru tersimpan di peramban.`);
       }
     }
-
-    setIsLocationFormOpen(false);
-    setSelectedLocationForEdit(null);
   };
 
   // Handler: Delete Location
@@ -242,30 +226,55 @@ export default function App() {
     setSelectedLocationForDelete(null);
 
     try {
-      await fetch(`/api/locations/${encodeURIComponent(id)}`, { method: 'DELETE' });
-    } catch (e) {
-      console.warn('Backend delete error:', e);
+      await deleteLocationFromFirestore(id);
+      showToast(`Lokasi "${name}" telah berhasil dihapus dari Cloud.`);
+    } catch (err) {
+      console.error('Gagal hapus dari Cloud:', err);
+      showToast(`Lokasi "${name}" telah berhasil dihapus.`);
     }
+  };
 
-    showToast(`Lokasi "${name}" telah berhasil dihapus dari database.`);
+  // Handler: Bulk Delete Locations
+  const handleBulkDelete = async (ids: string[]) => {
+    if (!ids || ids.length === 0) return;
+    const count = ids.length;
+    setLocations(prev => prev.filter(l => !ids.includes(l.id)));
+
+    try {
+      await deleteMultipleLocationsFromFirestore(ids);
+      showToast(`✓ Sebanyak ${count} lokasi telah berhasil dihapus dari Cloud.`);
+    } catch (err) {
+      console.error('Gagal hapus massal dari Cloud:', err);
+      showToast(`Sebanyak ${count} lokasi telah berhasil dihapus.`);
+    }
+  };
+
+  // Handler: Clear All Locations
+  const handleClearAllLocations = async () => {
+    const count = locations.length;
+    setLocations([]);
+    try {
+      await deleteAllLocationsFromFirestore();
+      showToast(`✓ Seluruh ${count} data lokasi telah berhasil dibersihkan dari Cloud.`);
+    } catch (err) {
+      console.error('Gagal membersihkan seluruh data dari Cloud:', err);
+      showToast(`Seluruh data lokasi telah dibersihkan.`);
+    }
   };
 
   // Handler: Reset Data
   const handleResetData = async () => {
-    if (window.confirm('Kembalikan seluruh data ke data sampel bawaan KDKMP? Semua perubahan buatan akan direset.')) {
+    if (window.confirm('Kembalikan seluruh data ke data sampel acuan KDKMP? Semua perubahan akan direset baik di Cloud maupun Lokal.')) {
+      setLocations(INITIAL_LOCATIONS);
       try {
-        const res = await fetch('/api/locations/reset', { method: 'POST' });
-        if (res.ok) {
-          const json = await res.json();
-          setLocations(json.data || INITIAL_LOCATIONS);
-        } else {
-          setLocations(INITIAL_LOCATIONS);
-        }
-      } catch {
-        setLocations(INITIAL_LOCATIONS);
+        await resetLocationsInFirestore(INITIAL_LOCATIONS);
+        await clearLocationsCache();
+        showToast('Data berhasil direset ke standar acuan awal (Cloud & Lokal).');
+      } catch (err) {
+        console.warn('Gagal reset di Cloud, mereset cache lokal:', err);
+        await clearLocationsCache();
+        showToast('Data berhasil direset ke standar acuan awal.');
       }
-      localStorage.removeItem(STORAGE_KEY);
-      showToast('Data berhasil direset ke standar acuan awal.');
     }
   };
 
@@ -281,102 +290,102 @@ export default function App() {
     showToast('Formulir blanko checklist KDKMP berhasil diunduh dalam format PDF.');
   };
 
-  // Handler: Import Locations
+  // Handler: Import Locations - Memastikan seluruh data yang diimport yang terpilih masuk ke daftar lokasi
   const handleImportLocations = async (
     importedLocations: KDKMPLocation[],
-    conflictMode: 'overwrite' | 'append' | 'skip' | boolean = 'overwrite'
+    conflictMode: 'overwrite' | 'append' | 'skip' | boolean = 'append'
   ) => {
+    if (!importedLocations || importedLocations.length === 0) return;
+
     const mode = typeof conflictMode === 'boolean' ? (conflictMode ? 'overwrite' : 'append') : conflictMode;
-    let addedCount = 0;
-    let updatedCount = 0;
-    let skippedCount = 0;
+    const now = Date.now();
+    const isoNow = new Date().toISOString();
 
-    const updated = [...locations];
-    const itemsToSave: KDKMPLocation[] = [];
-
-    importedLocations.forEach(newLoc => {
-      const existingIdx = updated.findIndex(
-        l =>
-          (newLoc.kodeKDKMP && l.kodeKDKMP.trim().toLowerCase() === newLoc.kodeKDKMP.trim().toLowerCase()) ||
-          (newLoc.namaLokasi && l.namaLokasi.trim().toLowerCase() === newLoc.namaLokasi.trim().toLowerCase())
-      );
-
-      if (existingIdx >= 0) {
-        if (mode === 'overwrite') {
-          const item = {
-            ...newLoc,
-            id: updated[existingIdx].id,
-            updatedAt: new Date().toISOString()
-          };
-          updated[existingIdx] = item;
-          itemsToSave.push(item);
-          updatedCount++;
-        } else if (mode === 'skip') {
-          skippedCount++;
-        } else {
-          const item = {
-            ...newLoc,
-            id: `kdkmp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-            updatedAt: new Date().toISOString()
-          };
-          updated.unshift(item);
-          itemsToSave.push(item);
-          addedCount++;
-        }
-      } else {
-        const item = {
-          ...newLoc,
-          id: `kdkmp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-          updatedAt: new Date().toISOString()
-        };
-        updated.unshift(item);
-        itemsToSave.push(item);
-        addedCount++;
-      }
+    // Map existing locations before the import batch is processed
+    const existingLocationsMap = new Map<string, KDKMPLocation>();
+    locations.forEach(loc => {
+      existingLocationsMap.set(loc.id, loc);
+      if (loc.kodeKDKMP) existingLocationsMap.set(loc.kodeKDKMP.trim().toLowerCase(), loc);
+      if (loc.namaLokasi) existingLocationsMap.set(loc.namaLokasi.trim().toLowerCase(), loc);
     });
 
-    setLocations(updated);
+    const updated = [...locations];
+    const touchedExistingIds = new Set<string>();
+    const newlyAdded: KDKMPLocation[] = [];
+    let updatedCount = 0;
+    let addedCount = 0;
 
-    // Save batch to backend API
-    try {
-      await fetch('/api/locations/batch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: itemsToSave })
-      });
-    } catch (e) {
-      console.warn('Backend batch sync warning:', e);
-    }
+    importedLocations.forEach((newLoc, idx) => {
+      // Find matching pre-existing location from BEFORE this import started
+      const matchByCode = newLoc.kodeKDKMP ? existingLocationsMap.get(newLoc.kodeKDKMP.trim().toLowerCase()) : undefined;
+      const matchByName = newLoc.namaLokasi ? existingLocationsMap.get(newLoc.namaLokasi.trim().toLowerCase()) : undefined;
+      const matchById = newLoc.id ? existingLocationsMap.get(newLoc.id) : undefined;
+      const existingMatch = matchById || matchByCode || matchByName;
 
-    const summaryParts: string[] = [];
-    if (addedCount > 0) summaryParts.push(`${addedCount} baru`);
-    if (updatedCount > 0) summaryParts.push(`${updatedCount} diperbarui`);
-    if (skippedCount > 0) summaryParts.push(`${skippedCount} dilewati`);
+      if (mode === 'overwrite' && existingMatch && !touchedExistingIds.has(existingMatch.id)) {
+        // Overwrite pre-existing location with exact imported data
+        const targetIdx = updated.findIndex(l => l.id === existingMatch.id);
+        if (targetIdx >= 0) {
+          const merged: KDKMPLocation = {
+            ...newLoc,
+            id: newLoc.id || existingMatch.id,
+            updatedAt: newLoc.updatedAt || isoNow
+          };
+          updated[targetIdx] = merged;
+          touchedExistingIds.add(existingMatch.id);
+          updatedCount++;
+          return;
+        }
+      }
 
-    showToast(
-      `Sukses menyimpan ${importedLocations.length} lokasi ke database server (${summaryParts.join(', ') || 'selesai'}).`
-    );
+      // Default & Append mode: Masukkan seluruh data terpilih secara persis tanpa merubah apapun
+      const preservedId = newLoc.id && !existingLocationsMap.has(newLoc.id)
+        ? newLoc.id
+        : (newLoc.id ? `${newLoc.id}-imp-${now}-${idx}` : `kdkmp-${now}-${idx}-${Math.random().toString(36).substring(2, 7)}`);
+
+      const itemToInsert: KDKMPLocation = {
+        ...newLoc,
+        id: preservedId,
+        updatedAt: newLoc.updatedAt || isoNow
+      };
+      newlyAdded.push(itemToInsert);
+      addedCount++;
+    });
+
+    // Letakkan data baru di awal daftar lokasi agar langsung terlihat oleh pengguna
+    const finalLocations = [...newlyAdded, ...updated];
+    setLocations(finalLocations);
+    cacheLocations(finalLocations);
+
+    // Pindahkan tampilan langsung ke Tab "Daftar Lokasi"
     setActiveTab('locations');
+
+    const totalMasuk = addedCount + updatedCount;
+    showToast(
+      `✓ Seluruh ${totalMasuk} data lokasi terpilih telah berhasil masuk ke Daftar Lokasi (${addedCount} ditambahkan${updatedCount > 0 ? `, ${updatedCount} diperbarui` : ''})!`
+    );
+
+    try {
+      await saveMultipleLocationsToFirestore(finalLocations);
+      showToast(`✓ Seluruh data impor tersimpan permanen di Cloud!`);
+    } catch (err) {
+      console.warn('Gagal sinkron impor ke Cloud:', err);
+    }
   };
 
   // Handler: Restore Drive Data
   const handleRestoreDriveData = async (restored: KDKMPLocation[]) => {
     setLocations(restored);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(restored));
-    try {
-      await fetch('/api/locations/batch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: restored })
-      });
-    } catch (e) {
-      console.warn('Backend batch sync warning:', e);
-    }
-    showToast(`Berhasil memulihkan ${restored.length} data lokasi KDKMP dari Google Drive.`);
+    cacheLocations(restored);
     setActiveTab('locations');
+    try {
+      await saveMultipleLocationsToFirestore(restored);
+      showToast(`Berhasil memulihkan ${restored.length} data lokasi ke Cloud & Lokal.`);
+    } catch (err) {
+      console.error('Gagal sinkron restore ke Cloud:', err);
+      showToast(`Berhasil memulihkan ${restored.length} data lokasi KDKMP.`);
+    }
   };
-
-  const currentRoleInfo = user ? ROLE_LABELS[user.role] : null;
 
   return (
     <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans">
@@ -395,6 +404,7 @@ export default function App() {
         locations={locations}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        cloudSyncStatus={cloudSyncStatus}
         onOpenAddModal={() => {
           setSelectedLocationForEdit(null);
           setIsLocationFormOpen(true);
@@ -404,75 +414,7 @@ export default function App() {
         onExportCsv={handleExportCsv}
         onPrintBlankPdf={handlePrintBlankPdf}
         onResetData={handleResetData}
-        onOpenAuthModal={() => {
-          setAuthModalMode('login');
-          setIsAuthModalOpen(true);
-        }}
-        onOpenUserManagement={() => setIsUserManagementOpen(true)}
-        isBackendConnected={isBackendConnected}
       />
-
-      {/* Role / Authentication Notification Banner */}
-      <div className="bg-slate-900/95 text-slate-200 border-b border-slate-800 text-xs px-4 py-2 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          {isAuthenticated && user ? (
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="flex items-center gap-1.5 text-slate-400">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                Masuk sebagai:
-              </span>
-              <span className="font-semibold text-white">{user.name}</span>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${currentRoleInfo?.badgeClass}`}>
-                {currentRoleInfo?.label}
-              </span>
-              <span className="text-slate-400 text-[11px] hidden md:inline">
-                • {user.agency || 'Satgas KDKMP'} ({user.region || 'Nasional'})
-              </span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <span className="flex items-center gap-1.5 text-amber-300 font-medium">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                Mode Tamu (Pratinjau)
-              </span>
-              <span className="text-slate-400 text-[11px] hidden sm:inline">
-                Login untuk akses penuh pencatatan lapangan, validasi skor, dan kelola database.
-              </span>
-            </div>
-          )}
-
-          <div className="flex items-center gap-2">
-            {!isAuthenticated ? (
-              <button
-                onClick={() => {
-                  setAuthModalMode('login');
-                  setIsAuthModalOpen(true);
-                }}
-                className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-600 hover:bg-red-500 text-white rounded-md text-[11px] font-medium transition-colors shadow-xs"
-              >
-                <LogIn className="w-3 h-3" />
-                <span>Login Akun Petugas</span>
-              </button>
-            ) : (
-              <div className="flex items-center gap-2 text-[11px]">
-                {user?.role === 'admin' && (
-                  <button
-                    onClick={() => setIsUserManagementOpen(true)}
-                    className="inline-flex items-center gap-1 text-slate-300 hover:text-white px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors"
-                  >
-                    <Users className="w-3 h-3 text-red-400" />
-                    <span>Kelola Pengguna</span>
-                  </button>
-                )}
-                <span className="text-slate-400 flex items-center gap-1">
-                  <Server className="w-3 h-3 text-emerald-400" />
-                  Backend Storage JSON Aktif
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -485,10 +427,6 @@ export default function App() {
               setIsLocationFormOpen(true);
             }}
             onOpenDeleteConfirm={loc => {
-              if (!permissions.canDelete) {
-                showToast('Hanya Administrator yang memiliki wewenang menghapus data lokasi.');
-                return;
-              }
               setSelectedLocationForDelete(loc);
               setIsDeleteConfirmOpen(true);
             }}
@@ -497,20 +435,14 @@ export default function App() {
               setIsPdfPreviewOpen(true);
             }}
             onOpenAddModal={() => {
-              if (!permissions.canCreate) {
-                showToast('Peran Anda saat ini (Viewer) hanya memiliki akses baca laporan.');
-                return;
-              }
               setSelectedLocationForEdit(null);
               setIsLocationFormOpen(true);
             }}
             onOpenImportModal={() => {
-              if (!permissions.canImport) {
-                showToast('Hanya Admin dan Surveyor yang memiliki hak mengimpor data lokasi.');
-                return;
-              }
               setIsImportModalOpen(true);
             }}
+            onBulkDelete={handleBulkDelete}
+            onClearAll={handleClearAllLocations}
           />
         )}
 
@@ -525,6 +457,14 @@ export default function App() {
             onOpenAddModal={() => {
               setSelectedLocationForEdit(null);
               setIsLocationFormOpen(true);
+            }}
+            onOpenEditLocation={loc => {
+              setSelectedLocationForEdit(loc);
+              setIsLocationFormOpen(true);
+            }}
+            onOpenDeleteConfirm={loc => {
+              setSelectedLocationForDelete(loc);
+              setIsDeleteConfirmOpen(true);
             }}
           />
         )}
@@ -550,13 +490,13 @@ export default function App() {
       <footer className="bg-white border-t border-slate-200 py-6 text-xs text-slate-500 text-center">
         <div className="max-w-7xl mx-auto px-4 space-y-1">
           <p className="font-semibold text-slate-700">
-            Sistem Informasi Kesiapan Operasionalisasi KDKMP — Full-Stack Edition
+            Sistem Informasi Kesiapan Operasionalisasi KDKMP — Monitoring & Evaluasi Koperasi Desa / Kelurahan Merah Putih
           </p>
           <p>
             Berdasarkan Dokumen Instrumen Evaluasi Gerai & Gudang Koperasi Desa / Kelurahan Merah Putih
           </p>
           <p className="text-[11px] text-slate-400">
-            Backend API Express + JSON Persistence • Multi-Role Auth (Admin, Surveyor, Verifikator, Pengawas)
+            Penyimpanan Lokal Mandiri (Offline-Ready) • Rekapitulasi Excel, PDF Resmi & Cadangan Google Drive
           </p>
         </div>
       </footer>
@@ -618,22 +558,7 @@ export default function App() {
         existingLocations={locations}
       />
 
-      {/* 6. Auth Modal (Login & Register) */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        initialMode={authModalMode}
-        onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={msg => showToast(msg)}
-      />
-
-      {/* 7. User Management Modal */}
-      <UserManagementModal
-        isOpen={isUserManagementOpen}
-        onClose={() => setIsUserManagementOpen(false)}
-        onToast={msg => showToast(msg)}
-      />
-
-      {/* 8. Google Drive Integration Modal */}
+      {/* 6. Google Drive Integration Modal */}
       <GoogleDriveModal
         isOpen={isGoogleDriveOpen}
         onClose={() => setIsGoogleDriveOpen(false)}

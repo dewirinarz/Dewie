@@ -3,7 +3,7 @@ import { KDKMPLocation } from '../types/kdkmp';
 export const INITIAL_LOCATIONS: KDKMPLocation[] = [
   {
     id: 'kdkmp-001',
-    kodeKDKMP: 'KDKMP-JB-001',
+    kodeKDKMP: '32.03.KDKMP.001',
     namaLokasi: 'KDKMP Desa Sukamaju',
     provinsi: 'Jawa Barat',
     kabupatenKota: 'Kabupaten Cianjur',
@@ -167,7 +167,7 @@ export const INITIAL_LOCATIONS: KDKMPLocation[] = [
   },
   {
     id: 'kdkmp-002',
-    kodeKDKMP: 'KDKMP-YO-012',
+    kodeKDKMP: '34.02.KDKMP.012',
     namaLokasi: 'KDKMP Kelurahan Banguntapan',
     provinsi: 'D.I. Yogyakarta',
     kabupatenKota: 'Kabupaten Bantul',
@@ -289,7 +289,7 @@ export const INITIAL_LOCATIONS: KDKMPLocation[] = [
   },
   {
     id: 'kdkmp-003',
-    kodeKDKMP: 'KDKMP-JT-028',
+    kodeKDKMP: '35.07.KDKMP.028',
     namaLokasi: 'KDKMP Desa Sidomulyo',
     provinsi: 'Jawa Timur',
     kabupatenKota: 'Kabupaten Malang',
@@ -403,7 +403,7 @@ export const INITIAL_LOCATIONS: KDKMPLocation[] = [
   },
   {
     id: 'kdkmp-004',
-    kodeKDKMP: 'KDKMP-RI-005',
+    kodeKDKMP: '14.03.KDKMP.005',
     namaLokasi: 'KDKMP Desa Tanjung Medang',
     provinsi: 'Riau',
     kabupatenKota: 'Kabupaten Bengkalis',
@@ -517,7 +517,7 @@ export const INITIAL_LOCATIONS: KDKMPLocation[] = [
   },
   {
     id: 'kdkmp-005',
-    kodeKDKMP: 'KDKMP-JB-077',
+    kodeKDKMP: '32.16.KDKMP.077',
     namaLokasi: 'KDKMP Desa Kertarahayu',
     provinsi: 'Jawa Barat',
     kabupatenKota: 'Kabupaten Bekasi',
@@ -631,7 +631,7 @@ export const INITIAL_LOCATIONS: KDKMPLocation[] = [
   },
   {
     id: 'kdkmp-006',
-    kodeKDKMP: 'KDKMP-NT-019',
+    kodeKDKMP: '53.15.KDKMP.019',
     namaLokasi: 'KDKMP Desa Labuan Bajo',
     provinsi: 'Nusa Tenggara Timur',
     kabupatenKota: 'Kabupaten Manggarai Barat',
@@ -745,7 +745,7 @@ export const INITIAL_LOCATIONS: KDKMPLocation[] = [
   },
   {
     id: 'kdkmp-007',
-    kodeKDKMP: 'KDKMP-SS-031',
+    kodeKDKMP: '73.09.KDKMP.031',
     namaLokasi: 'KDKMP Desa Maros Sejahtera',
     provinsi: 'Sulawesi Selatan',
     kabupatenKota: 'Kabupaten Maros',

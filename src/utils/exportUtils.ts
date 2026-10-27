@@ -332,6 +332,16 @@ export function generateOfficialChecklistPdfBlob(location: KDKMPLocation): { blo
 }
 
 export function exportBlankChecklistPdf(): void {
+  if (typeof window !== 'undefined') {
+    const link = document.createElement('a');
+    link.href = '/assets/aistudio/Formulir_Kosong_Checklist_Kesiapan_KDKMP_54f73565.pdf';
+    link.download = 'Formulir_Kosong_Checklist_Kesiapan_KDKMP.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    return;
+  }
+
   const blankLocation: KDKMPLocation = {
     id: 'blank',
     kodeKDKMP: '..........................',

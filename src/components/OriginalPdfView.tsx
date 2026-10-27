@@ -30,7 +30,7 @@ export const OriginalPdfView: React.FC<OriginalPdfViewProps> = ({
   const [selectedDoc, setSelectedDoc] = useState<'purbayan' | 'blank'>('purbayan');
 
   const purbayanPdf = '/assets/aistudio/1._Form_KDMP_Purbayan_cf86c777.pdf';
-  const blankPdf = '/assets/aistudio/List_Checklist_Operasionalisasi_KDKMP_0cdb3d76.pdf';
+  const blankPdf = '/assets/aistudio/Formulir_Kosong_Checklist_Kesiapan_KDKMP_54f73565.pdf';
 
   const currentPdfUrl = selectedDoc === 'purbayan' ? purbayanPdf : blankPdf;
   const purbayanScore = calculateReadiness(PURBAYAN_PARSED_DATA.checklist);
@@ -55,12 +55,12 @@ export const OriginalPdfView: React.FC<OriginalPdfViewProps> = ({
           <h2 className="text-lg font-bold text-slate-900">
             {selectedDoc === 'purbayan'
               ? 'Formulir Hasil Kunjungan: KDMP Purbayan (Sukoharjo)'
-              : 'Instrumen Baku: List Checklist Kesiapan Operasionalisasi KDKMP'}
+              : 'Instrumen Baku: Formulir Kosong Checklist Kesiapan KDKMP'}
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
             {selectedDoc === 'purbayan'
               ? 'Dokumen scan fisik terisi lengkap yang dijadikan rujukan fitur import sistem (1._Form_KDMP_Purbayan_cf86c777.pdf)'
-              : 'Template standar instrumen evaluasi kesiapan gerai dan gudang KDKMP nasional'}
+              : 'Formulir acuan resmi 2 halaman siap cetak/tulis untuk peninjauan lapangan (Formulir_Kosong_Checklist_Kesiapan_KDKMP_54f73565.pdf)'}
           </p>
         </div>
 
@@ -89,14 +89,26 @@ export const OriginalPdfView: React.FC<OriginalPdfViewProps> = ({
             </button>
           </div>
 
-          <button
-            onClick={downloadOfficialKDKMPExcelTemplate}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition-colors"
-            title="Unduh Template Excel yang dibuat 100% mengikuti acuan formulir PDF ini"
-          >
-            <FileSpreadsheet className="w-4 h-4" />
-            Unduh Template Excel (Acuan PDF)
-          </button>
+          {selectedDoc === 'blank' ? (
+            <a
+              href="/assets/aistudio/Formulir_Kosong_Checklist_Kesiapan_KDKMP_54f73565.pdf"
+              download="Formulir_Kosong_Checklist_Kesiapan_KDKMP.pdf"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold shadow-sm transition-colors"
+              title="Unduh Formulir Blanko PDF Kosong Asli"
+            >
+              <Download className="w-4 h-4" />
+              Unduh Blanko PDF
+            </a>
+          ) : (
+            <button
+              onClick={downloadOfficialKDKMPExcelTemplate}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition-colors"
+              title="Unduh Template Excel yang dibuat 100% mengikuti acuan formulir PDF ini"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              Unduh Template Excel (Acuan PDF)
+            </button>
+          )}
 
           <a
             href={currentPdfUrl}
@@ -257,7 +269,7 @@ export const OriginalPdfView: React.FC<OriginalPdfViewProps> = ({
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
         <div className="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs text-slate-600">
           <span className="font-semibold text-slate-700">
-            Tampilan Dokumen: {selectedDoc === 'purbayan' ? '1._Form_KDMP_Purbayan_cf86c777.pdf' : 'List_Checklist_Operasionalisasi_KDKMP_0cdb3d76.pdf'}
+            Tampilan Dokumen: {selectedDoc === 'purbayan' ? '1._Form_KDMP_Purbayan_cf86c777.pdf' : 'Formulir_Kosong_Checklist_Kesiapan_KDKMP_54f73565.pdf'}
           </span>
           <span className="text-[11px] text-slate-400">Ukuran file: 2 Halaman (A4 Portrait)</span>
         </div>

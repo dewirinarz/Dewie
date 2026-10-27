@@ -28,7 +28,7 @@ function buildVerticalFormSheet(location: KDKMPLocation, isBlank: boolean = fals
     // Header
     ['LIST CHECKLIST KESIAPAN OPERASIONALISASI KDKMP', '', '', '', ''],
     ['Koperasi Desa / Kelurahan Merah Putih (Acuan Resmi Formulir PDF Lapangan)', '', '', '', ''],
-    ['Dokumen Acuan: 1._Form_KDMP_Purbayan & List_Checklist_Operasionalisasi_KDKMP', '', '', '', ''],
+    ['Dokumen Acuan: 1._Form_KDMP_Purbayan & Formulir_Kosong_Checklist_Kesiapan_KDKMP', '', '', '', ''],
     ['', '', '', '', ''],
 
     // Identitas
@@ -851,7 +851,7 @@ export function locationToBatchRow(loc: KDKMPLocation): (string | number)[] {
 function buildGuideSheet(): XLSX.WorkSheet {
   const guideData = [
     ['PANDUAN PENGISIAN TEMPLATE EXCEL KESIAPAN OPERASIONALISASI KDKMP', '', ''],
-    ['Mengacu pada Formulir Baku PDF Resmi (1._Form_KDMP_Purbayan & List_Checklist_Operasionalisasi_KDKMP)', '', ''],
+    ['Mengacu pada Formulir Baku PDF Resmi (1._Form_KDMP_Purbayan & Formulir_Kosong_Checklist_Kesiapan_KDKMP)', '', ''],
     ['', '', ''],
     ['NO', 'ATURAN / KETENTUAN PENGISIAN', 'CONTOH NILAI VALID & PENJELASAN'],
     ['1', 'Struktur Berkas Workbook', 'Berkas ini memiliki 4 sheet utama: 1) Formulir_Checklist_PDF (format lembar resmi), 2) Formulir_Blanko_PDF (siap cetak/tulis), 3) Data_Import_Batch_Massal (input ratusan baris sekaligus), 4) Panduan_Kamus_Data.'],
