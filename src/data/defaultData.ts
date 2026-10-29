@@ -1,4 +1,4 @@
-import { KDKMPLocation } from '../types/kdkmp';
+import type { KDKMPLocation } from '../types/kdkmp.ts';
 
 export const INITIAL_LOCATIONS: KDKMPLocation[] = [
   {

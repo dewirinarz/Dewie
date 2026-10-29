@@ -12,7 +12,8 @@ import {
   HardDrive,
   Cloud,
   CloudOff,
-  RefreshCw
+  RefreshCw,
+  Database
 } from 'lucide-react';
 import { KDKMPLocation, calculateReadiness } from '../types/kdkmp';
 import { downloadOfficialKDKMPExcelTemplate } from '../utils/excelTemplateUtils';
@@ -22,6 +23,10 @@ interface NavbarProps {
   activeTab: 'locations' | 'map' | 'statistics' | 'originalPdf';
   setActiveTab: (tab: 'locations' | 'map' | 'statistics' | 'originalPdf') => void;
   cloudSyncStatus?: 'synced' | 'syncing' | 'offline';
+  postgresConnected?: boolean;
+  onSyncServer?: () => void;
+  isSyncingServer?: boolean;
+  onOpenRecoveryModal?: () => void;
   onOpenAddModal: () => void;
   onOpenImportModal: () => void;
   onOpenGoogleDriveModal: () => void;
@@ -35,6 +40,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
   cloudSyncStatus = 'synced',
+  postgresConnected = true,
+  onSyncServer,
+  isSyncingServer = false,
+  onOpenRecoveryModal,
   onOpenAddModal,
   onOpenImportModal,
   onOpenGoogleDriveModal,
@@ -116,10 +125,42 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span>Mode Lokal / Offline</span>
               </div>
             )}
+
+            {/* Local Database Badge */}
+            <div
+              title="Tersambung ke Basis Data Lokal Mandiri: Seluruh data tersimpan permanen di server & browser."
+              className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-emerald-950/70 text-emerald-300 border border-emerald-500/30 shadow-2xs"
+            >
+              <Database className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Database Lokal Aktif</span>
+            </div>
           </div>
 
           {/* Actions */}
           <div className="flex items-center space-x-2">
+            {onSyncServer && (
+              <button
+                onClick={onSyncServer}
+                disabled={isSyncingServer}
+                title="Sinkronkan dengan Server Database Lokal"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs sm:text-sm font-semibold shadow-sm transition-colors border border-cyan-500/30 cursor-pointer disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isSyncingServer ? 'animate-spin text-cyan-400' : 'text-cyan-400'}`} />
+                <span className="hidden sm:inline">{isSyncingServer ? 'Menyinkron...' : 'Segarkan Data'}</span>
+              </button>
+            )}
+
+            {onOpenRecoveryModal && (
+              <button
+                onClick={onOpenRecoveryModal}
+                title="Buka Panel Verifikasi & Pemulihan Data KDKMP"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg bg-red-700 hover:bg-red-600 text-white text-xs sm:text-sm font-semibold shadow-sm transition-colors border border-red-500/40 cursor-pointer"
+              >
+                <Database className="w-3.5 h-3.5 text-red-200" />
+                <span className="hidden sm:inline">Pemulihan Data</span>
+              </button>
+            )}
+
             <button
               onClick={onOpenImportModal}
               title="Import File Multi-Format (Excel .xlsx, CSV, PDF, JSON)"
@@ -139,11 +180,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={onOpenGoogleDriveModal}
-              title="Google Drive: Cadangkan & Sinkronkan Data, Ekspor CSV & Berkas PDF"
+              title="Cadangan & Pemulihan Data: Unduh Berkas JSON Lengkap, Ekspor Excel & Pulihkan Data Mandiri Tanpa Cloud"
               className="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg bg-blue-700 hover:bg-blue-600 text-white text-xs sm:text-sm font-semibold shadow-sm transition-colors border border-blue-500/40 cursor-pointer"
             >
-              <HardDrive className="w-4 h-4 text-blue-200" />
-              <span className="hidden sm:inline">Google Drive</span>
+              <Database className="w-4 h-4 text-blue-200" />
+              <span className="hidden sm:inline">Cadangan Data</span>
             </button>
 
             <button

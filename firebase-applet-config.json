@@ -1,12 +1,11 @@
 {
-  "projectId": "massive-lotus-m3kqt",
-  "appId": "1:354968571310:web:fb0302d2827426f508cc3f",
-  "apiKey": "AIzaSyDG4WBu0AkqKNOeox6DkhHIU3yD1xrEwmk",
-  "authDomain": "massive-lotus-m3kqt.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-kesiapanoperasio-721de4fc-706b-4773-9cb9-daa3084b761d",
-  "storageBucket": "massive-lotus-m3kqt.firebasestorage.app",
-  "messagingSenderId": "354968571310",
+  "projectId": "gen-lang-client-0361875834",
+  "appId": "1:524728990195:web:8372c92f094d333cb73a86",
+  "apiKey": "AIzaSyB1rqh-by-IvPZA5cZcV8v8JyMOwEd1uWc",
+  "authDomain": "gen-lang-client-0361875834.firebaseapp.com",
+  "storageBucket": "gen-lang-client-0361875834.firebasestorage.app",
+  "messagingSenderId": "524728990195",
   "measurementId": "",
-  "oAuthClientId": "354968571310-neabp6c3uehdp1ud1sm8as6u8ov6o2p5.apps.googleusercontent.com",
+  "oAuthClientId": "524728990195-2t0h193dac3repmugn4bj65o3qvbs3jp.apps.googleusercontent.com",
   "recaptchaSiteKey": ""
 }

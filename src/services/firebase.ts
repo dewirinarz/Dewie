@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import {
+  initializeFirestore,
   getFirestore,
   collection,
   doc,
@@ -17,7 +18,9 @@ import { KDKMPLocation } from '../types/kdkmp';
 import { INITIAL_LOCATIONS } from '../data/defaultData';
 
 export const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+export const db = initializeFirestore(app, {
+  experimentalAutoDetectLongPolling: true,
+}, (firebaseConfig as any).firestoreDatabaseId || '(default)');
 
 export enum OperationType {
   CREATE = 'create',
@@ -106,7 +109,11 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
  */
 export async function testConnection(): Promise<boolean> {
   try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), 3000)
+    );
+    const fetchPromise = getDocFromServer(doc(db, SYSTEM_COLLECTION, 'connection'));
+    await Promise.race([fetchPromise, timeoutPromise]);
     return true;
   } catch (error) {
     if (isQuotaOrNetworkError(error)) {

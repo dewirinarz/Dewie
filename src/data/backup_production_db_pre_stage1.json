@@ -1,0 +1,1479 @@
+[
+  {
+    "id": "kdkmp-001",
+    "kode_kdkmp": "32.03.KDKMP.001",
+    "nama_lokasi": "KDKMP Desa Sukamaju",
+    "provinsi": "Jawa Barat",
+    "kabupaten_kota": "Kabupaten Cianjur",
+    "kecamatan": "Kecamatan Sukaresmi",
+    "desa_kelurahan": "Desa Sukamaju",
+    "data": {
+      "id": "kdkmp-001",
+      "provinsi": "Jawa Barat",
+      "checklist": {
+        "sdm": {
+          "manajerKD": {
+            "status": "ada",
+            "keterangan": "Rifki Pratama, S.E. (Lulusan Manajemen Bisnis)",
+            "tanggalOnBoarding": "2026-09-01"
+          },
+          "sdmRekrutmenAPN": {
+            "status": "ada",
+            "keterangan": "4 staf kasir & gudang 100% warga pemuda Desa Sukamaju",
+            "masyarakatSekitar": "ya"
+          },
+          "pembekalanManajer": {
+            "status": "ada",
+            "keterangan": "Sertifikat kelulusan TOT Koperasi Pasca 2 Tahun terverifikasi",
+            "tanggalPembekalan": "2026-09-12"
+          },
+          "koordinasiPengurusKades": {
+            "status": "ada",
+            "keterangan": "Dihadiri Kepala Desa Sukamaju dan 5 Ketua RW",
+            "tanggalKoordinasi": "2026-10-10",
+            "mekanismeKoordinasi": "Rapat koordinasi bulanan & grup komunikasi terpadu WA"
+          }
+        },
+        "produk": {
+          "gula": {
+            "status": "ada",
+            "keterangan": "Gula kristal putih kemasan 1 kg SNI",
+            "sumberSupply": "PT Perkebunan Nusantara / RNI",
+            "skemaKerjasama": "konsinyasi",
+            "periodePengiriman": "2 minggu sekali"
+          },
+          "lpg3kg": {
+            "status": "ada",
+            "jumlahStok": "180 tabung",
+            "keterangan": "Distribusi ke pangkalan berjalan tertib sesuai HET",
+            "jumlahDiterima": "600 tabung",
+            "periodePengiriman": "2x seminggu (Senin & Kamis)"
+          },
+          "berasSPHP": {
+            "status": "ada",
+            "jumlahStok": "1.250 Kg",
+            "keterangan": "Dijual Rp 62.500/sak 5kg, peminat sangat tinggi",
+            "jumlahDiterima": "5.000 Kg (kemasan 5kg)",
+            "periodePengiriman": "Mingguan dari Gudang Bulog Cianjur"
+          },
+          "minyakita": {
+            "status": "ada",
+            "jumlahStok": "320 Liter",
+            "keterangan": "Harga sesuai HET Rp 15.700/liter",
+            "jumlahDiterima": "1.800 Liter",
+            "periodePengiriman": "1x per 10 hari"
+          },
+          "obatObatan": {
+            "status": "ada",
+            "keterangan": "Obat bebas & bebas terbatas (Paracetamol, Antasida, Vitamin)",
+            "sumberSupply": "PBF Kimia Farma Trading & Distribution",
+            "skemaKerjasama": "konsinyasi",
+            "periodePengiriman": "Bulanan"
+          },
+          "pupukBersubsidi": {
+            "status": "ada",
+            "jumlahStok": "4.5 Ton",
+            "keterangan": "Penebusan melalui kartu tani / aplikasi i-Pubers",
+            "jumlahDiterima": "15 Ton (Urea & NPK)",
+            "periodePengiriman": "Setiap awal bulan"
+          }
+        },
+        "sistem": {
+          "sistemStokBarang": {
+            "status": "ada",
+            "keterangan": "Aplikasi ERP KDKMP Cloud tersinkronisasi stok real-time"
+          },
+          "sistemAbsensiPegawai": {
+            "status": "ada",
+            "keterangan": "Mesin fingerprint biometrik & GPS mobile"
+          },
+          "sistemPemesananProduk": {
+            "status": "ada",
+            "keterangan": "Portal B2B terhubung langsung dengan PBF & Bulog"
+          }
+        },
+        "transaksi": {
+          "produkKurangLaku": {
+            "keterangan": "Warga lebih memilih sachet atau obat generik esensial",
+            "namaProduk": "Obat herbal kapsul kemasan besar"
+          },
+          "produkPalingLaku": {
+            "keterangan": "Kebutuhan pokok pangan desa perputaran sangat cepat",
+            "rangeJumlah": "Beras SPHP (90 sak/hari), Minyakita (120 pouch/hari), LPG 3kg"
+          },
+          "waktuOperasional": {
+            "keterangan": "Buka setiap hari (Senin s/d Minggu)",
+            "rangeWaktu": "07.30 - 21.00 WIB"
+          },
+          "kendalaDanDukungan": {
+            "keterangan": "Perlu penambahan pallet penyimpanan dan antrean digital QR",
+            "kendalaUtama": "Antrean penebusan gas LPG 3kg di pagi hari saat pasokan datang"
+          },
+          "mekanismeTransaksi": {
+            "pilihan": "keduanya",
+            "keterangan": "65% Cash tunai, 35% QRIS Mandiri & debit BRI"
+          },
+          "nilaiTransaksiHarian": {
+            "keterangan": "Puncak transaksi di pagi hari dan akhir pekan",
+            "rangeNilai": "Rp 18.500.000 - Rp 27.000.000 / hari"
+          }
+        },
+        "fisikSarpras": {
+          "bangunanGerai": {
+            "status": "ada",
+            "keterangan": "Luas gerai 80 m2, etalase siap, penerangan LED memadai"
+          },
+          "rakObatApotek": {
+            "status": "ada",
+            "keterangan": "Lemari obat terkunci kaca standar BPOM"
+          },
+          "bangunanGudang": {
+            "status": "ada",
+            "keterangan": "Luas gudang 120 m2, lantai beton, ventilasi standar aman untuk LPG & Pupuk"
+          },
+          "fasilitasKlinik": {
+            "status": "ada",
+            "keterangan": "Ruang klinik 12 m2, bed periksa & tensimeter tersedia"
+          },
+          "saranaPrasarana": {
+            "ac": {
+              "status": "ada",
+              "keterangan": "2 unit AC Daikin 1.5 PK ruang gerai berfungsi dingin"
+            },
+            "apar": {
+              "status": "ada",
+              "keterangan": "4 unit APAR 6kg tabung serbuk kimia (berlaku s/d 2027)"
+            },
+            "cctv": {
+              "status": "ada",
+              "keterangan": "8 channel IP Camera aktif online recording"
+            },
+            "truk6Ban": {
+              "status": "ada",
+              "keterangan": "1 unit Isuzu Elf bak besi, kondisi prima"
+            },
+            "pickup4x4": {
+              "status": "ada",
+              "keterangan": "1 unit Hilux Single Cabin operasional kebun"
+            },
+            "seragamKD": {
+              "status": "ada",
+              "keterangan": "8 stel seragam kemeja bordir resmi KDKMP"
+            },
+            "rakDisplay": {
+              "status": "ada",
+              "keterangan": "6 unit rak gondola double & 4 single"
+            },
+            "papanNamaKD": {
+              "status": "ada",
+              "keterangan": "Papan nama neon box ukuran 3x1.5 meter menyala"
+            },
+            "kipasCeiling": {
+              "status": "ada",
+              "keterangan": "3 unit kipas plafon di area gudang"
+            },
+            "motorBakRoda3": {
+              "status": "ada",
+              "keterangan": "2 unit Viar 150cc antar jemput barang desa"
+            },
+            "perangkatKasir": {
+              "status": "ada",
+              "keterangan": "PC Kasir POS + Scanner Barcode + Printer Kasir"
+            },
+            "keranjangBelanja": {
+              "status": "ada",
+              "keterangan": "25 keranjang belanja plastik merah-putih"
+            }
+          },
+          "instalasiListrik": {
+            "status": "ada",
+            "keterangan": "Daya PLN 5.500 VA + Genset backup 3.000 VA"
+          },
+          "instalasiAirBersih": {
+            "status": "ada",
+            "keterangan": "PDAM lancar dengan toren tampungan 1.000 L"
+          }
+        }
+      },
+      "kecamatan": "Kecamatan Sukaresmi",
+      "kodeKDKMP": "32.03.KDKMP.001",
+      "updatedAt": "2026-10-15T14:30:00Z",
+      "namaLokasi": "KDKMP Desa Sukamaju",
+      "namaPetugas": "Drs. Hendra Setiawan (Tim Satgas KDKMP)",
+      "kontakPerson": "Ahmad Fauzi (0812-3456-7890)",
+      "alamatLengkap": "Jl. Raya Cipanas No. 45, Desa Sukamaju, Kec. Sukaresmi",
+      "desaKelurahan": "Desa Sukamaju",
+      "kabupatenKota": "Kabupaten Cianjur",
+      "catatanTambahan": "Lokasi strategis di jalur utama desa dekat kantor balai desa dan pasar tani.",
+      "tanggalKunjungan": "2026-10-15"
+    },
+    "updated_at": "2026-10-28T08:39:21.542Z",
+    "created_at": "2026-10-28T08:39:21.548Z"
+  },
+  {
+    "id": "kdkmp-002",
+    "kode_kdkmp": "34.02.KDKMP.012",
+    "nama_lokasi": "KDKMP Kelurahan Banguntapan",
+    "provinsi": "D.I. Yogyakarta",
+    "kabupaten_kota": "Kabupaten Bantul",
+    "kecamatan": "Kecamatan Banguntapan",
+    "desa_kelurahan": "Kelurahan Banguntapan",
+    "data": {
+      "id": "kdkmp-002",
+      "provinsi": "D.I. Yogyakarta",
+      "checklist": {
+        "sdm": {
+          "manajerKD": {
+            "status": "ada",
+            "keterangan": "Eko Nugroho, S.Pt",
+            "tanggalOnBoarding": "2026-08-15"
+          },
+          "sdmRekrutmenAPN": {
+            "status": "ada",
+            "keterangan": "6 staf warga Banguntapan",
+            "masyarakatSekitar": "ya"
+          },
+          "pembekalanManajer": {
+            "status": "ada",
+            "keterangan": "Lulus sertifikasi pengelola ritel koperasi",
+            "tanggalPembekalan": "2026-08-25"
+          },
+          "koordinasiPengurusKades": {
+            "status": "ada",
+            "keterangan": "Dihadiri Lurah Banguntapan",
+            "tanggalKoordinasi": "2026-10-12",
+            "mekanismeKoordinasi": "Rapat koordinasi mingguan pengurus"
+          }
+        },
+        "produk": {
+          "gula": {
+            "status": "ada",
+            "keterangan": "Gula pasir premium lokal",
+            "sumberSupply": "PG Madukismo",
+            "skemaKerjasama": "beli_putus",
+            "periodePengiriman": "1x seminggu"
+          },
+          "lpg3kg": {
+            "status": "ada",
+            "jumlahStok": "220 tabung",
+            "keterangan": "Pencatatan NIK terintegrasi subsidi tepat",
+            "jumlahDiterima": "800 tabung",
+            "periodePengiriman": "3x seminggu"
+          },
+          "berasSPHP": {
+            "status": "ada",
+            "jumlahStok": "2.100 Kg",
+            "keterangan": "Kualitas beras pulen dan higienis",
+            "jumlahDiterima": "6.000 Kg",
+            "periodePengiriman": "Setiap hari Selasa"
+          },
+          "minyakita": {
+            "status": "ada",
+            "jumlahStok": "500 Liter",
+            "keterangan": "Stok aman tercukupi",
+            "jumlahDiterima": "2.400 Liter",
+            "periodePengiriman": "Mingguan"
+          },
+          "obatObatan": {
+            "status": "ada",
+            "keterangan": "Obat P3K, vitamin daya tahan tubuh",
+            "sumberSupply": "Apotek Mitra KDKMP",
+            "skemaKerjasama": "konsinyasi",
+            "periodePengiriman": "Dua mingguan"
+          },
+          "pupukBersubsidi": {
+            "status": "ada",
+            "jumlahStok": "3 Ton",
+            "keterangan": "Alokasi kelompok tani hortikultura",
+            "jumlahDiterima": "10 Ton",
+            "periodePengiriman": "Dua mingguan"
+          }
+        },
+        "sistem": {
+          "sistemStokBarang": {
+            "status": "ada",
+            "keterangan": "Sistem Barcode Auto-Reorder"
+          },
+          "sistemAbsensiPegawai": {
+            "status": "ada",
+            "keterangan": "Absensi wajah geofencing mobile"
+          },
+          "sistemPemesananProduk": {
+            "status": "ada",
+            "keterangan": "Integrasi e-Commerce lokal"
+          }
+        },
+        "transaksi": {
+          "produkKurangLaku": {
+            "keterangan": "Konsumen gemar sachet/pouch",
+            "namaProduk": "Sabun cuci curah jerigen besar"
+          },
+          "produkPalingLaku": {
+            "keterangan": "Pangan pokok",
+            "rangeJumlah": "Minyakita 180 pouch, Beras SPHP 120 sak"
+          },
+          "waktuOperasional": {
+            "keterangan": "Full day 2 shift operasional",
+            "rangeWaktu": "06.30 - 22.00 WIB"
+          },
+          "kendalaDanDukungan": {
+            "keterangan": "Kerjasama dengan karang taruna untuk pembinaan parkir desa",
+            "kendalaUtama": "Lahan parkir mobil saat jam sibuk perlu pengaturan juru parkir"
+          },
+          "mekanismeTransaksi": {
+            "pilihan": "keduanya",
+            "keterangan": "55% QRIS & EDC, 45% Tunai"
+          },
+          "nilaiTransaksiHarian": {
+            "keterangan": "Sangat ramai pembeli",
+            "rangeNilai": "Rp 22.000.000 - Rp 35.000.000 / hari"
+          }
+        },
+        "fisikSarpras": {
+          "bangunanGerai": {
+            "status": "ada",
+            "keterangan": "Gerai standar mini mart modern luas 100 m2"
+          },
+          "rakObatApotek": {
+            "status": "ada",
+            "keterangan": "Apotek mini terdaftar dinkes kabupaten"
+          },
+          "bangunanGudang": {
+            "status": "ada",
+            "keterangan": "Gudang berpendingin khusus & rak pallet"
+          },
+          "fasilitasKlinik": {
+            "status": "ada",
+            "keterangan": "Klinik pratama KDKMP standby dokter perawat desa"
+          },
+          "saranaPrasarana": {
+            "ac": {
+              "status": "ada",
+              "keterangan": "3 unit AC Inverter 2 PK"
+            },
+            "apar": {
+              "status": "ada",
+              "keterangan": "6 tabung APAR CO2 dan powder"
+            },
+            "cctv": {
+              "status": "ada",
+              "keterangan": "16 channel DVR Cloud"
+            },
+            "truk6Ban": {
+              "status": "ada",
+              "keterangan": "1 unit Hino Dutro box pendingin"
+            },
+            "pickup4x4": {
+              "status": "ada",
+              "keterangan": "1 unit Suzuki Carry pickup"
+            },
+            "seragamKD": {
+              "status": "ada",
+              "keterangan": "Lengkap ID card dan celemek barista/kasir"
+            },
+            "rakDisplay": {
+              "status": "ada",
+              "keterangan": "12 unit rak modern"
+            },
+            "papanNamaKD": {
+              "status": "ada",
+              "keterangan": "Papan acrilic LED 4x2 m"
+            },
+            "kipasCeiling": {
+              "status": "ada",
+              "keterangan": "4 unit exhaust ceiling"
+            },
+            "motorBakRoda3": {
+              "status": "ada",
+              "keterangan": "1 unit Viar Karya 200"
+            },
+            "perangkatKasir": {
+              "status": "ada",
+              "keterangan": "2 set POS Touchscreen dual screen"
+            },
+            "keranjangBelanja": {
+              "status": "ada",
+              "keterangan": "30 keranjang tarik & tenteng"
+            }
+          },
+          "instalasiListrik": {
+            "status": "ada",
+            "keterangan": "7.700 VA panel distribusi tersertifikasi"
+          },
+          "instalasiAirBersih": {
+            "status": "ada",
+            "keterangan": "Sumur bor dalam + filter air bersih"
+          }
+        }
+      },
+      "kecamatan": "Kecamatan Banguntapan",
+      "kodeKDKMP": "34.02.KDKMP.012",
+      "updatedAt": "2026-10-18T11:20:00Z",
+      "namaLokasi": "KDKMP Kelurahan Banguntapan",
+      "namaPetugas": "Siti Rahmawati, M.Sc (Satgas Koperasi Wilayah)",
+      "kontakPerson": "Bambang Triyono (0813-8877-6655)",
+      "alamatLengkap": "Jl. Ringroad Timur No. 88, Banguntapan, Bantul",
+      "desaKelurahan": "Kelurahan Banguntapan",
+      "kabupatenKota": "Kabupaten Bantul",
+      "catatanTambahan": "Kesiapan sangat prima, display estetik dan sistem POS terintegrasi kasir modern.",
+      "tanggalKunjungan": "2026-10-18"
+    },
+    "updated_at": "2026-10-28T08:39:21.565Z",
+    "created_at": "2026-10-28T08:39:21.570Z"
+  },
+  {
+    "id": "kdkmp-003",
+    "kode_kdkmp": "35.07.KDKMP.028",
+    "nama_lokasi": "KDKMP Desa Sidomulyo",
+    "provinsi": "Jawa Timur",
+    "kabupaten_kota": "Kabupaten Malang",
+    "kecamatan": "Kecamatan Pujon",
+    "desa_kelurahan": "Desa Sidomulyo",
+    "data": {
+      "id": "kdkmp-003",
+      "provinsi": "Jawa Timur",
+      "checklist": {
+        "sdm": {
+          "manajerKD": {
+            "status": "ada",
+            "keterangan": "Danang Wicaksono",
+            "tanggalOnBoarding": "2026-09-10"
+          },
+          "sdmRekrutmenAPN": {
+            "status": "ada",
+            "keterangan": "3 orang pemuda setempat",
+            "masyarakatSekitar": "ya"
+          },
+          "pembekalanManajer": {
+            "status": "tidak_ada",
+            "keterangan": "Menunggu jadwal gelombang 2 pelatihan provinsi",
+            "tanggalPembekalan": ""
+          },
+          "koordinasiPengurusKades": {
+            "status": "ada",
+            "keterangan": "Kades mendukung penuh program KDKMP",
+            "tanggalKoordinasi": "2026-10-05",
+            "mekanismeKoordinasi": "Musyawarah desa selapanan"
+          }
+        },
+        "produk": {
+          "gula": {
+            "status": "ada",
+            "keterangan": "Gula lokal Malang",
+            "sumberSupply": "Koperasi Petani Tebu",
+            "skemaKerjasama": "beli_putus",
+            "periodePengiriman": "Bulanan"
+          },
+          "lpg3kg": {
+            "status": "ada",
+            "jumlahStok": "90 tabung",
+            "keterangan": "Peminat tinggi dari peternak sapi perah",
+            "jumlahDiterima": "400 tabung",
+            "periodePengiriman": "1x seminggu"
+          },
+          "berasSPHP": {
+            "status": "ada",
+            "jumlahStok": "400 Kg",
+            "keterangan": "Cepat habis dalam 4 hari",
+            "jumlahDiterima": "3.000 Kg",
+            "periodePengiriman": "2 minggu sekali"
+          },
+          "minyakita": {
+            "status": "ada",
+            "jumlahStok": "120 Liter",
+            "keterangan": "Stok menipis menunggu pasokan baru",
+            "jumlahDiterima": "800 Liter",
+            "periodePengiriman": "Dua mingguan"
+          },
+          "obatObatan": {
+            "status": "tidak_ada",
+            "keterangan": "Izin edar apotek desa sedang proses pengajuan",
+            "sumberSupply": "",
+            "skemaKerjasama": "",
+            "periodePengiriman": ""
+          },
+          "pupukBersubsidi": {
+            "status": "ada",
+            "jumlahStok": "1.2 Ton",
+            "keterangan": "Petani sayur mayur Pujon",
+            "jumlahDiterima": "8 Ton",
+            "periodePengiriman": "Bulanan"
+          }
+        },
+        "sistem": {
+          "sistemStokBarang": {
+            "status": "ada",
+            "keterangan": "Aplikasi spreadsheet terkoneksi drive"
+          },
+          "sistemAbsensiPegawai": {
+            "status": "tidak_ada",
+            "keterangan": "Masih buku absensi tanda tangan manual"
+          },
+          "sistemPemesananProduk": {
+            "status": "ada",
+            "keterangan": "WhatsApp Form ke distributor cabang"
+          }
+        },
+        "transaksi": {
+          "produkKurangLaku": {
+            "keterangan": "Warga lebih suka jajan olahan lokal",
+            "namaProduk": "Snack modern bermerk kota"
+          },
+          "produkPalingLaku": {
+            "keterangan": "Kebutuhan vital warga",
+            "rangeJumlah": "LPG 3kg & Pupuk NPK Bersubsidi"
+          },
+          "waktuOperasional": {
+            "keterangan": "Menyesuaikan jam kerja petani",
+            "rangeWaktu": "08.00 - 17.00 WIB"
+          },
+          "kendalaDanDukungan": {
+            "keterangan": "Dibutuhkan bantuan instalasi Wi-Fi satelit / fiber optik desa",
+            "kendalaUtama": "Koneksi internet seluler sering blank spot saat hujan lebat"
+          },
+          "mekanismeTransaksi": {
+            "pilihan": "cash",
+            "keterangan": "90% Tunai, sinyal seluler kadang lambat untuk QRIS"
+          },
+          "nilaiTransaksiHarian": {
+            "keterangan": "Rata-rata omzet harian",
+            "rangeNilai": "Rp 6.000.000 - Rp 12.000.000 / hari"
+          }
+        },
+        "fisikSarpras": {
+          "bangunanGerai": {
+            "status": "ada",
+            "keterangan": "Gerai semi modern di balai pertemuan"
+          },
+          "rakObatApotek": {
+            "status": "ada",
+            "keterangan": "Rak obat kaca 2 susun"
+          },
+          "bangunanGudang": {
+            "status": "ada",
+            "keterangan": "Gudang cukup luas, atap seng baru"
+          },
+          "fasilitasKlinik": {
+            "status": "tidak_ada",
+            "keterangan": "Ruang klinik masih tahap renovasi dinding"
+          },
+          "saranaPrasarana": {
+            "ac": {
+              "status": "tidak_ada",
+              "keterangan": "Daerah dingin pegunungan (hanya ventilasi alami)"
+            },
+            "apar": {
+              "status": "tidak_ada",
+              "keterangan": "Tabung APAR sedang diisi ulang ke kota"
+            },
+            "cctv": {
+              "status": "ada",
+              "keterangan": "4 kamera analog terpasang"
+            },
+            "truk6Ban": {
+              "status": "tidak_ada",
+              "keterangan": "Belum dialokasikan armada truk 6 ban"
+            },
+            "pickup4x4": {
+              "status": "ada",
+              "keterangan": "1 unit Mitsubishi L300 4x2"
+            },
+            "seragamKD": {
+              "status": "ada",
+              "keterangan": "4 seragam petugas"
+            },
+            "rakDisplay": {
+              "status": "ada",
+              "keterangan": "5 unit rak"
+            },
+            "papanNamaKD": {
+              "status": "ada",
+              "keterangan": "Spanduk papan nama kayu plat besi"
+            },
+            "kipasCeiling": {
+              "status": "tidak_ada",
+              "keterangan": "Tidak diperlukan karena hawa sejuk"
+            },
+            "motorBakRoda3": {
+              "status": "ada",
+              "keterangan": "1 unit Tossa 150cc"
+            },
+            "perangkatKasir": {
+              "status": "ada",
+              "keterangan": "Laptop POS + printer thermal"
+            },
+            "keranjangBelanja": {
+              "status": "ada",
+              "keterangan": "15 keranjang"
+            }
+          },
+          "instalasiListrik": {
+            "status": "ada",
+            "keterangan": "3.500 VA stabil"
+          },
+          "instalasiAirBersih": {
+            "status": "ada",
+            "keterangan": "Sumber mata air pegunungan lancar"
+          }
+        }
+      },
+      "kecamatan": "Kecamatan Pujon",
+      "kodeKDKMP": "35.07.KDKMP.028",
+      "updatedAt": "2026-10-20T09:15:00Z",
+      "namaLokasi": "KDKMP Desa Sidomulyo",
+      "namaPetugas": "Budi Santoso, S.Sos (Penyuluh Koperasi Daerah)",
+      "kontakPerson": "Haryanto (0852-9988-1122)",
+      "alamatLengkap": "Dusun Krajan RT 04 RW 02, Desa Sidomulyo, Kec. Pujon",
+      "desaKelurahan": "Desa Sidomulyo",
+      "kabupatenKota": "Kabupaten Malang",
+      "catatanTambahan": "Sebagian sarana dalam proses pengiriman (APAR dan truk sedang servis).",
+      "tanggalKunjungan": "2026-10-20"
+    },
+    "updated_at": "2026-10-28T08:39:21.575Z",
+    "created_at": "2026-10-28T08:39:21.580Z"
+  },
+  {
+    "id": "kdkmp-004",
+    "kode_kdkmp": "14.03.KDKMP.005",
+    "nama_lokasi": "KDKMP Desa Tanjung Medang",
+    "provinsi": "Riau",
+    "kabupaten_kota": "Kabupaten Bengkalis",
+    "kecamatan": "Kecamatan Rupat Utara",
+    "desa_kelurahan": "Desa Tanjung Medang",
+    "data": {
+      "id": "kdkmp-004",
+      "provinsi": "Riau",
+      "checklist": {
+        "sdm": {
+          "manajerKD": {
+            "status": "ada",
+            "keterangan": "M. Rasyid Ridho",
+            "tanggalOnBoarding": "2026-08-01"
+          },
+          "sdmRekrutmenAPN": {
+            "status": "ada",
+            "keterangan": "2 staf pemuda nelayan",
+            "masyarakatSekitar": "ya"
+          },
+          "pembekalanManajer": {
+            "status": "ada",
+            "keterangan": "Sertifikasi online pasca 2 tahun",
+            "tanggalPembekalan": "2026-08-10"
+          },
+          "koordinasiPengurusKades": {
+            "status": "ada",
+            "keterangan": "Sinergi BUMDes dan KDKMP",
+            "tanggalKoordinasi": "2026-09-28",
+            "mekanismeKoordinasi": "Rapat dengan BPD dan Kades Tanjung Medang"
+          }
+        },
+        "produk": {
+          "gula": {
+            "status": "ada",
+            "keterangan": "Gula pasir kemasan 1 kg",
+            "sumberSupply": "Distributor Dumai",
+            "skemaKerjasama": "beli_putus",
+            "periodePengiriman": "Bulanan"
+          },
+          "lpg3kg": {
+            "status": "ada",
+            "jumlahStok": "65 tabung",
+            "keterangan": "Sangat vital untuk pasokan gas nelayan",
+            "jumlahDiterima": "350 tabung",
+            "periodePengiriman": "Tergantung jadwal kapal roro 1x seminggu"
+          },
+          "berasSPHP": {
+            "status": "ada",
+            "jumlahStok": "800 Kg",
+            "keterangan": "Menjaga stabilitas harga beras di pulau terluar",
+            "jumlahDiterima": "4.000 Kg",
+            "periodePengiriman": "Setiap 2 minggu via kapal Dumai"
+          },
+          "minyakita": {
+            "status": "ada",
+            "jumlahStok": "240 Liter",
+            "keterangan": "Sangat diminati ibu rumah tangga",
+            "jumlahDiterima": "1.200 Liter",
+            "periodePengiriman": "Dua mingguan"
+          },
+          "obatObatan": {
+            "status": "tidak_ada",
+            "keterangan": "Menunggu rekomendasi Puskesmas Pembantu",
+            "sumberSupply": "",
+            "skemaKerjasama": "",
+            "periodePengiriman": ""
+          },
+          "pupukBersubsidi": {
+            "status": "tidak_ada",
+            "jumlahStok": "0",
+            "keterangan": "Mayoritas warga adalah nelayan pesisir bukan petani",
+            "jumlahDiterima": "0",
+            "periodePengiriman": "Belum ada alokasi pupuk di pulau ini"
+          }
+        },
+        "sistem": {
+          "sistemStokBarang": {
+            "status": "ada",
+            "keterangan": "Aplikasi kasir offline sync"
+          },
+          "sistemAbsensiPegawai": {
+            "status": "tidak_ada",
+            "keterangan": "Buku daftar hadir manual"
+          },
+          "sistemPemesananProduk": {
+            "status": "tidak_ada",
+            "keterangan": "Pemesanan masih mengandalkan telepon agen laut"
+          }
+        },
+        "transaksi": {
+          "produkKurangLaku": {
+            "keterangan": "Lebih diminati mie instan standar",
+            "namaProduk": "Mie instan varian premium"
+          },
+          "produkPalingLaku": {
+            "keterangan": "Sembako dasar pulau",
+            "rangeJumlah": "Beras SPHP dan Minyakita"
+          },
+          "waktuOperasional": {
+            "keterangan": "Mengikuti kedatangan kapal nelayan",
+            "rangeWaktu": "07.00 - 18.00 WIB"
+          },
+          "kendalaDanDukungan": {
+            "keterangan": "Perlu buffer stock gudang kapasitas 2x lipat dan genset cadangan otomatis",
+            "kendalaUtama": "Tergantung cuaca ombak laut dan jadwal kapal penyeberangan roro"
+          },
+          "mekanismeTransaksi": {
+            "pilihan": "cash",
+            "keterangan": "100% Tunai karena keterbatasan sinyal perbankan"
+          },
+          "nilaiTransaksiHarian": {
+            "keterangan": "Stabil",
+            "rangeNilai": "Rp 8.000.000 - Rp 14.000.000 / hari"
+          }
+        },
+        "fisikSarpras": {
+          "bangunanGerai": {
+            "status": "ada",
+            "keterangan": "Gerai 60 m2 menghadap jalan pelabuhan"
+          },
+          "rakObatApotek": {
+            "status": "ada",
+            "keterangan": "Etalase obat P3K kelautan"
+          },
+          "bangunanGudang": {
+            "status": "ada",
+            "keterangan": "Gudang dermaga beton anti korosi air laut"
+          },
+          "fasilitasKlinik": {
+            "status": "tidak_ada",
+            "keterangan": "Belum ada ruang medis memadai"
+          },
+          "saranaPrasarana": {
+            "ac": {
+              "status": "tidak_ada",
+              "keterangan": "Belum terpasang pendingin"
+            },
+            "apar": {
+              "status": "ada",
+              "keterangan": "2 tabung APAR 6kg"
+            },
+            "cctv": {
+              "status": "tidak_ada",
+              "keterangan": "Belum dipasang"
+            },
+            "truk6Ban": {
+              "status": "tidak_ada",
+              "keterangan": "Tidak ada jalan besar untuk truk 6 ban di pulau"
+            },
+            "pickup4x4": {
+              "status": "ada",
+              "keterangan": "1 unit Pickup kabin tunggal modifikasi ban lumpur"
+            },
+            "seragamKD": {
+              "status": "ada",
+              "keterangan": "Tersedia kaos berkerah logo KDKMP"
+            },
+            "rakDisplay": {
+              "status": "ada",
+              "keterangan": "4 unit rak besi galvanis"
+            },
+            "papanNamaKD": {
+              "status": "ada",
+              "keterangan": "Plang besi cat tahan cuaca laut"
+            },
+            "kipasCeiling": {
+              "status": "ada",
+              "keterangan": "2 unit kipas angin dinding"
+            },
+            "motorBakRoda3": {
+              "status": "ada",
+              "keterangan": "2 unit motor roda 3 pengangkut galon & gas"
+            },
+            "perangkatKasir": {
+              "status": "ada",
+              "keterangan": "Mesin kasir Android POS portable"
+            },
+            "keranjangBelanja": {
+              "status": "ada",
+              "keterangan": "10 keranjang"
+            }
+          },
+          "instalasiListrik": {
+            "status": "ada",
+            "keterangan": "PLN Subsektor 2.200 VA (kadang pemadaman)"
+          },
+          "instalasiAirBersih": {
+            "status": "ada",
+            "keterangan": "Penampungan air hujan & desalinasi"
+          }
+        }
+      },
+      "kecamatan": "Kecamatan Rupat Utara",
+      "kodeKDKMP": "14.03.KDKMP.005",
+      "updatedAt": "2026-10-12T16:00:00Z",
+      "namaLokasi": "KDKMP Desa Tanjung Medang",
+      "namaPetugas": "Iskandar Zulkarnain, S.T (Satgas 3T KDKMP)",
+      "kontakPerson": "Zulham Efendi (0821-7766-4433)",
+      "alamatLengkap": "Jl. Mercusuar Pantai No. 12, Pulau Rupat, Kab. Bengkalis",
+      "desaKelurahan": "Desa Tanjung Medang",
+      "kabupatenKota": "Kabupaten Bengkalis",
+      "catatanTambahan": "KDKMP wilayah kepulauan / perbatasan, transportasi bergantung kapal roro & dermaga.",
+      "tanggalKunjungan": "2026-10-12"
+    },
+    "updated_at": "2026-10-28T08:39:21.586Z",
+    "created_at": "2026-10-28T08:39:21.592Z"
+  },
+  {
+    "id": "kdkmp-005",
+    "kode_kdkmp": "32.16.KDKMP.077",
+    "nama_lokasi": "KDKMP Desa Kertarahayu",
+    "provinsi": "Jawa Barat",
+    "kabupaten_kota": "Kabupaten Bekasi",
+    "kecamatan": "Kecamatan Setu",
+    "desa_kelurahan": "Desa Kertarahayu",
+    "data": {
+      "id": "kdkmp-005",
+      "provinsi": "Jawa Barat",
+      "checklist": {
+        "sdm": {
+          "manajerKD": {
+            "status": "ada",
+            "keterangan": "Dedi Kurniawan",
+            "tanggalOnBoarding": "2026-09-05"
+          },
+          "sdmRekrutmenAPN": {
+            "status": "ada",
+            "keterangan": "5 staf pemuda Kertarahayu",
+            "masyarakatSekitar": "ya"
+          },
+          "pembekalanManajer": {
+            "status": "ada",
+            "keterangan": "Selesai pelatihan manajerial pasca 2 tahun",
+            "tanggalPembekalan": "2026-09-20"
+          },
+          "koordinasiPengurusKades": {
+            "status": "ada",
+            "keterangan": "Kades Setu hadir dan memberikan arahan",
+            "tanggalKoordinasi": "2026-10-14",
+            "mekanismeKoordinasi": "Rapat koordinasi bulanan"
+          }
+        },
+        "produk": {
+          "gula": {
+            "status": "ada",
+            "keterangan": "Gula Maniskita SNI",
+            "sumberSupply": "Perum Bulog Subdivre Bekasi",
+            "skemaKerjasama": "beli_putus",
+            "periodePengiriman": "2 minggu sekali"
+          },
+          "lpg3kg": {
+            "status": "ada",
+            "jumlahStok": "140 tabung",
+            "keterangan": "Pangkalan resmi Pertamina",
+            "jumlahDiterima": "560 tabung",
+            "periodePengiriman": "2x seminggu"
+          },
+          "berasSPHP": {
+            "status": "ada",
+            "jumlahStok": "1.100 Kg",
+            "keterangan": "Kemasan 5 kg",
+            "jumlahDiterima": "4.500 Kg",
+            "periodePengiriman": "Mingguan dari Bulog Karawang"
+          },
+          "minyakita": {
+            "status": "ada",
+            "jumlahStok": "350 Liter",
+            "keterangan": "Ketersediaan lancar",
+            "jumlahDiterima": "1.500 Liter",
+            "periodePengiriman": "10 hari sekali"
+          },
+          "obatObatan": {
+            "status": "tidak_ada",
+            "keterangan": "MoU dengan PBF dalam finalisasi legalitas",
+            "sumberSupply": "",
+            "skemaKerjasama": "",
+            "periodePengiriman": ""
+          },
+          "pupukBersubsidi": {
+            "status": "ada",
+            "jumlahStok": "2.5 Ton",
+            "keterangan": "Distribusi untuk kelompok tani padi desa",
+            "jumlahDiterima": "6 Ton",
+            "periodePengiriman": "Bulanan"
+          }
+        },
+        "sistem": {
+          "sistemStokBarang": {
+            "status": "ada",
+            "keterangan": "Aplikasi ERP Cloud KDKMP"
+          },
+          "sistemAbsensiPegawai": {
+            "status": "ada",
+            "keterangan": "Aplikasi mobile absensi GPS"
+          },
+          "sistemPemesananProduk": {
+            "status": "ada",
+            "keterangan": "Sistem PO otomatis"
+          }
+        },
+        "transaksi": {
+          "produkKurangLaku": {
+            "keterangan": "Lebih laris kemasan pouch refill",
+            "namaProduk": "Kecap botol ukuran 1 liter"
+          },
+          "produkPalingLaku": {
+            "keterangan": "Paket sembako hemat",
+            "rangeJumlah": "Beras SPHP & Minyakita (150 paket gabungan)"
+          },
+          "waktuOperasional": {
+            "keterangan": "Setiap hari buka",
+            "rangeWaktu": "07.00 - 21.00 WIB"
+          },
+          "kendalaDanDukungan": {
+            "keterangan": "Dukungan rak gondola tambahan dan display chiller minuman dingin",
+            "kendalaUtama": "Kebutuhan tambahan rak display untuk menampung produk UMKM desa binaan"
+          },
+          "mekanismeTransaksi": {
+            "pilihan": "keduanya",
+            "keterangan": "Tersedia QRIS BRImo/BCA dan uang tunai"
+          },
+          "nilaiTransaksiHarian": {
+            "keterangan": "Ramai buruh pabrik dan petani",
+            "rangeNilai": "Rp 14.000.000 - Rp 21.000.000 / hari"
+          }
+        },
+        "fisikSarpras": {
+          "bangunanGerai": {
+            "status": "ada",
+            "keterangan": "Gerai kaca modern ber-AC 75 m2"
+          },
+          "rakObatApotek": {
+            "status": "ada",
+            "keterangan": "Rak obat aluminium tertutup"
+          },
+          "bangunanGudang": {
+            "status": "ada",
+            "keterangan": "Gudang permanen 100 m2 dengan gerbang rolling door besi"
+          },
+          "fasilitasKlinik": {
+            "status": "ada",
+            "keterangan": "Ruang klinik mandiri 15 m2"
+          },
+          "saranaPrasarana": {
+            "ac": {
+              "status": "ada",
+              "keterangan": "2 unit AC 1.5 PK"
+            },
+            "apar": {
+              "status": "ada",
+              "keterangan": "3 tabung APAR 6kg"
+            },
+            "cctv": {
+              "status": "ada",
+              "keterangan": "8 channel CCTV"
+            },
+            "truk6Ban": {
+              "status": "ada",
+              "keterangan": "1 unit Mitsubishi Canter"
+            },
+            "pickup4x4": {
+              "status": "tidak_ada",
+              "keterangan": "Kondisi jalan aspal mulus, armada memakai 4x2"
+            },
+            "seragamKD": {
+              "status": "ada",
+              "keterangan": "Lengkap rompi dan kemeja KDKMP"
+            },
+            "rakDisplay": {
+              "status": "ada",
+              "keterangan": "8 unit rak gondola"
+            },
+            "papanNamaKD": {
+              "status": "ada",
+              "keterangan": "Papan nama plang neon box terang"
+            },
+            "kipasCeiling": {
+              "status": "ada",
+              "keterangan": "2 kipas ceiling"
+            },
+            "motorBakRoda3": {
+              "status": "ada",
+              "keterangan": "2 unit Viar"
+            },
+            "perangkatKasir": {
+              "status": "ada",
+              "keterangan": "All-in-one POS touchscreen + thermal printer"
+            },
+            "keranjangBelanja": {
+              "status": "ada",
+              "keterangan": "20 keranjang belanja"
+            }
+          },
+          "instalasiListrik": {
+            "status": "ada",
+            "keterangan": "PLN 4.400 VA aman tanpa kendala"
+          },
+          "instalasiAirBersih": {
+            "status": "ada",
+            "keterangan": "Air tanah jernih filter karbon"
+          }
+        }
+      },
+      "kecamatan": "Kecamatan Setu",
+      "kodeKDKMP": "32.16.KDKMP.077",
+      "updatedAt": "2026-10-22T13:45:00Z",
+      "namaLokasi": "KDKMP Desa Kertarahayu",
+      "namaPetugas": "Wahyu Nugroho, S.E. (Inspektur Operasional KDKMP)",
+      "kontakPerson": "Nurhalim (0877-1234-5566)",
+      "alamatLengkap": "Jl. Situ Burangkeng No. 19, Kertarahayu, Setu, Kab. Bekasi",
+      "desaKelurahan": "Desa Kertarahayu",
+      "kabupatenKota": "Kabupaten Bekasi",
+      "catatanTambahan": "Kesiapan 87%, sarana kasir modern, klinik sedang pengadaan perlengkapan obat.",
+      "tanggalKunjungan": "2026-10-22"
+    },
+    "updated_at": "2026-10-28T08:39:21.601Z",
+    "created_at": "2026-10-28T08:39:21.608Z"
+  },
+  {
+    "id": "kdkmp-006",
+    "kode_kdkmp": "53.15.KDKMP.019",
+    "nama_lokasi": "KDKMP Desa Labuan Bajo",
+    "provinsi": "Nusa Tenggara Timur",
+    "kabupaten_kota": "Kabupaten Manggarai Barat",
+    "kecamatan": "Kecamatan Komodo",
+    "desa_kelurahan": "Kelurahan Labuan Bajo",
+    "data": {
+      "id": "kdkmp-006",
+      "provinsi": "Nusa Tenggara Timur",
+      "checklist": {
+        "sdm": {
+          "manajerKD": {
+            "status": "ada",
+            "keterangan": "Stefanus N",
+            "tanggalOnBoarding": "2026-10-01"
+          },
+          "sdmRekrutmenAPN": {
+            "status": "tidak_ada",
+            "keterangan": "Proses seleksi tahap 2 staf lokal",
+            "masyarakatSekitar": "ya"
+          },
+          "pembekalanManajer": {
+            "status": "tidak_ada",
+            "keterangan": "Jadwal pembekalan diagendakan bulan depan",
+            "tanggalPembekalan": ""
+          },
+          "koordinasiPengurusKades": {
+            "status": "ada",
+            "keterangan": "Didukung oleh kelurahan setempat",
+            "tanggalKoordinasi": "2026-10-04",
+            "mekanismeKoordinasi": "Rapat awal pembentukan gerai KDKMP"
+          }
+        },
+        "produk": {
+          "gula": {
+            "status": "tidak_ada",
+            "keterangan": "Belum ada kontrak pengadaan gula",
+            "sumberSupply": "",
+            "skemaKerjasama": "",
+            "periodePengiriman": ""
+          },
+          "lpg3kg": {
+            "status": "ada",
+            "jumlahStok": "50 tabung",
+            "keterangan": "Harga terkontrol di pulau",
+            "jumlahDiterima": "200 tabung",
+            "periodePengiriman": "1x seminggu"
+          },
+          "berasSPHP": {
+            "status": "ada",
+            "jumlahStok": "600 Kg",
+            "keterangan": "Sangat dibutuhkan warga dan UMKM warung makan",
+            "jumlahDiterima": "2.000 Kg",
+            "periodePengiriman": "2 minggu sekali dari Bulog Ruteng"
+          },
+          "minyakita": {
+            "status": "ada",
+            "jumlahStok": "80 Liter",
+            "keterangan": "Cepat laku",
+            "jumlahDiterima": "600 Liter",
+            "periodePengiriman": "Dua mingguan"
+          },
+          "obatObatan": {
+            "status": "tidak_ada",
+            "keterangan": "Belum tersedia",
+            "sumberSupply": "",
+            "skemaKerjasama": "",
+            "periodePengiriman": ""
+          },
+          "pupukBersubsidi": {
+            "status": "tidak_ada",
+            "jumlahStok": "0",
+            "keterangan": "Wilayah perkotaan pariwisata",
+            "jumlahDiterima": "0",
+            "periodePengiriman": ""
+          }
+        },
+        "sistem": {
+          "sistemStokBarang": {
+            "status": "tidak_ada",
+            "keterangan": "Belum setup sistem ERP"
+          },
+          "sistemAbsensiPegawai": {
+            "status": "tidak_ada",
+            "keterangan": "Belum ada"
+          },
+          "sistemPemesananProduk": {
+            "status": "tidak_ada",
+            "keterangan": "Belum terhubung sistem"
+          }
+        },
+        "transaksi": {
+          "produkKurangLaku": {
+            "keterangan": "Belum banyak varian komoditas",
+            "namaProduk": "-"
+          },
+          "produkPalingLaku": {
+            "keterangan": "Kebutuhan pokok rumah tangga",
+            "rangeJumlah": "Beras SPHP 5kg"
+          },
+          "waktuOperasional": {
+            "keterangan": "Jam buka masa uji coba",
+            "rangeWaktu": "09.00 - 15.00 WITA"
+          },
+          "kendalaDanDukungan": {
+            "keterangan": "Perlu percepatan distribusi rak display, komputer kasir, dan armada pickup KDKMP",
+            "kendalaUtama": "Keterlambatan logistik ekspedisi kapal sarpras dari Surabaya dan biaya angkut tinggi"
+          },
+          "mekanismeTransaksi": {
+            "pilihan": "cash",
+            "keterangan": "Hanya tunai"
+          },
+          "nilaiTransaksiHarian": {
+            "keterangan": "Tahap pengenalan",
+            "rangeNilai": "Rp 2.500.000 - Rp 5.000.000 / hari"
+          }
+        },
+        "fisikSarpras": {
+          "bangunanGerai": {
+            "status": "ada",
+            "keterangan": "Gerai dalam tahap pengecatan dan instalasi rak"
+          },
+          "rakObatApotek": {
+            "status": "tidak_ada",
+            "keterangan": "Belum tersedia"
+          },
+          "bangunanGudang": {
+            "status": "ada",
+            "keterangan": "Gudang sewa sementara 50 m2"
+          },
+          "fasilitasKlinik": {
+            "status": "tidak_ada",
+            "keterangan": "Belum dialokasikan ruangan"
+          },
+          "saranaPrasarana": {
+            "ac": {
+              "status": "tidak_ada",
+              "keterangan": "Belum terpasang"
+            },
+            "apar": {
+              "status": "tidak_ada",
+              "keterangan": "Belum ada APAR"
+            },
+            "cctv": {
+              "status": "tidak_ada",
+              "keterangan": "Belum ada CCTV"
+            },
+            "truk6Ban": {
+              "status": "tidak_ada",
+              "keterangan": "Belum ada unit"
+            },
+            "pickup4x4": {
+              "status": "tidak_ada",
+              "keterangan": "Belum ada unit"
+            },
+            "seragamKD": {
+              "status": "ada",
+              "keterangan": "Seragam sudah diterima"
+            },
+            "rakDisplay": {
+              "status": "tidak_ada",
+              "keterangan": "Menunggu pengiriman dari Surabaya"
+            },
+            "papanNamaKD": {
+              "status": "ada",
+              "keterangan": "Papan nama kain banner terpasang"
+            },
+            "kipasCeiling": {
+              "status": "ada",
+              "keterangan": "1 kipas angin berdiri"
+            },
+            "motorBakRoda3": {
+              "status": "ada",
+              "keterangan": "1 unit motor bak"
+            },
+            "perangkatKasir": {
+              "status": "ada",
+              "keterangan": "1 unit tablet POS Android"
+            },
+            "keranjangBelanja": {
+              "status": "tidak_ada",
+              "keterangan": "Belum tiba"
+            }
+          },
+          "instalasiListrik": {
+            "status": "ada",
+            "keterangan": "PLN 2.200 VA"
+          },
+          "instalasiAirBersih": {
+            "status": "tidak_ada",
+            "keterangan": "Saluran air bersih pipa induk sedang perbaikan"
+          }
+        }
+      },
+      "kecamatan": "Kecamatan Komodo",
+      "kodeKDKMP": "53.15.KDKMP.019",
+      "updatedAt": "2026-10-08T10:00:00Z",
+      "namaLokasi": "KDKMP Desa Labuan Bajo",
+      "namaPetugas": "Fransiskus Xaverius (Satgas Pendamping Lapangan NTT)",
+      "kontakPerson": "Ignatius J (0812-4455-9988)",
+      "alamatLengkap": "Jl. Waecicu No. 08, Labuan Bajo, Kab. Manggarai Barat",
+      "desaKelurahan": "Kelurahan Labuan Bajo",
+      "kabupatenKota": "Kabupaten Manggarai Barat",
+      "catatanTambahan": "Kesiapan 48% (Belum Siap). Bangunan gerai masih persiapan partisi dan armada belum lengkap.",
+      "tanggalKunjungan": "2026-10-08"
+    },
+    "updated_at": "2026-10-28T08:39:21.623Z",
+    "created_at": "2026-10-28T08:39:21.627Z"
+  },
+  {
+    "id": "kdkmp-007",
+    "kode_kdkmp": "73.09.KDKMP.031",
+    "nama_lokasi": "KDKMP Desa Maros Sejahtera",
+    "provinsi": "Sulawesi Selatan",
+    "kabupaten_kota": "Kabupaten Maros",
+    "kecamatan": "Kecamatan Lau",
+    "desa_kelurahan": "Desa Maros Sejahtera",
+    "data": {
+      "id": "kdkmp-007",
+      "provinsi": "Sulawesi Selatan",
+      "checklist": {
+        "sdm": {
+          "manajerKD": {
+            "status": "ada",
+            "keterangan": "Hasbullah Syam",
+            "tanggalOnBoarding": "2026-08-20"
+          },
+          "sdmRekrutmenAPN": {
+            "status": "ada",
+            "keterangan": "3 staf warga sekitar",
+            "masyarakatSekitar": "ya"
+          },
+          "pembekalanManajer": {
+            "status": "ada",
+            "keterangan": "Telah mengikuti pembekalan manajemen KDKMP",
+            "tanggalPembekalan": "2026-09-02"
+          },
+          "koordinasiPengurusKades": {
+            "status": "ada",
+            "keterangan": "Koordinasi dengan pengurus Koperasi Unit Desa",
+            "tanggalKoordinasi": "2026-10-11",
+            "mekanismeKoordinasi": "Rapat koordinasi dua mingguan"
+          }
+        },
+        "produk": {
+          "gula": {
+            "status": "ada",
+            "keterangan": "Gula pasir kristal putih",
+            "sumberSupply": "PTPN XIV Sulsel",
+            "skemaKerjasama": "beli_putus",
+            "periodePengiriman": "Bulanan"
+          },
+          "lpg3kg": {
+            "status": "ada",
+            "jumlahStok": "130 tabung",
+            "keterangan": "Alokasi aman untuk pangkalan binaan",
+            "jumlahDiterima": "500 tabung",
+            "periodePengiriman": "2x seminggu"
+          },
+          "berasSPHP": {
+            "status": "ada",
+            "jumlahStok": "900 Kg",
+            "keterangan": "Beras kemasan 5kg",
+            "jumlahDiterima": "4.000 Kg",
+            "periodePengiriman": "Setiap minggu"
+          },
+          "minyakita": {
+            "status": "ada",
+            "jumlahStok": "280 Liter",
+            "keterangan": "Kemasan bantal dan pouch",
+            "jumlahDiterima": "1.200 Liter",
+            "periodePengiriman": "Dua mingguan"
+          },
+          "obatObatan": {
+            "status": "tidak_ada",
+            "keterangan": "Menunggu kerjasama dengan apotek jejaring",
+            "sumberSupply": "",
+            "skemaKerjasama": "",
+            "periodePengiriman": ""
+          },
+          "pupukBersubsidi": {
+            "status": "ada",
+            "jumlahStok": "3 Ton",
+            "keterangan": "Penebusan petani sawah irigasi Maros lancar",
+            "jumlahDiterima": "12 Ton (Urea & NPK Phonska)",
+            "periodePengiriman": "Awal bulan"
+          }
+        },
+        "sistem": {
+          "sistemStokBarang": {
+            "status": "ada",
+            "keterangan": "Aplikasi pembukuan digital"
+          },
+          "sistemAbsensiPegawai": {
+            "status": "tidak_ada",
+            "keterangan": "Absensi manual buku log"
+          },
+          "sistemPemesananProduk": {
+            "status": "ada",
+            "keterangan": "Sistem PO via aplikasi KDKMP"
+          }
+        },
+        "transaksi": {
+          "produkKurangLaku": {
+            "keterangan": "Kemasan terlalu besar untuk konsumsi harian",
+            "namaProduk": "Sabun pembersih lantai galon besar"
+          },
+          "produkPalingLaku": {
+            "keterangan": "Kawasan pertanian produktif",
+            "rangeJumlah": "Pupuk Subsidi dan Beras SPHP"
+          },
+          "waktuOperasional": {
+            "keterangan": "Buka setiap hari",
+            "rangeWaktu": "07.30 - 19.30 WITA"
+          },
+          "kendalaDanDukungan": {
+            "keterangan": "Dukungan koordinasi jalur logistik komoditas pertanian dengan Dinas Perhubungan",
+            "kendalaUtama": "Truk pengangkut pupuk terkadang terhambat jembatan timbang pada saat musim panen"
+          },
+          "mekanismeTransaksi": {
+            "pilihan": "keduanya",
+            "keterangan": "70% Tunai, 30% QRIS Bank Sulselbar & BRI"
+          },
+          "nilaiTransaksiHarian": {
+            "keterangan": "Ramai di pagi hari",
+            "rangeNilai": "Rp 11.000.000 - Rp 18.000.000 / hari"
+          }
+        },
+        "fisikSarpras": {
+          "bangunanGerai": {
+            "status": "ada",
+            "keterangan": "Gerai seluas 70 m2"
+          },
+          "rakObatApotek": {
+            "status": "ada",
+            "keterangan": "Rak obat aluminium terpasang"
+          },
+          "bangunanGudang": {
+            "status": "ada",
+            "keterangan": "Gudang semi permanen luas 140 m2"
+          },
+          "fasilitasKlinik": {
+            "status": "tidak_ada",
+            "keterangan": "Menunggu renovasi sekat ruangan"
+          },
+          "saranaPrasarana": {
+            "ac": {
+              "status": "ada",
+              "keterangan": "1 unit AC 1.5 PK gerai"
+            },
+            "apar": {
+              "status": "ada",
+              "keterangan": "2 tabung APAR"
+            },
+            "cctv": {
+              "status": "ada",
+              "keterangan": "4 kamera CCTV"
+            },
+            "truk6Ban": {
+              "status": "ada",
+              "keterangan": "1 unit truk 6 ban Mitsubishi Fuso"
+            },
+            "pickup4x4": {
+              "status": "tidak_ada",
+              "keterangan": "Menggunakan pickup biasa 4x2"
+            },
+            "seragamKD": {
+              "status": "ada",
+              "keterangan": "Seragam lengkap 6 stel"
+            },
+            "rakDisplay": {
+              "status": "ada",
+              "keterangan": "6 unit rak gondola"
+            },
+            "papanNamaKD": {
+              "status": "ada",
+              "keterangan": "Papan nama plang resmi KDKMP"
+            },
+            "kipasCeiling": {
+              "status": "ada",
+              "keterangan": "2 kipas ceiling"
+            },
+            "motorBakRoda3": {
+              "status": "ada",
+              "keterangan": "1 unit motor roda 3"
+            },
+            "perangkatKasir": {
+              "status": "ada",
+              "keterangan": "Komputer kasir & printer"
+            },
+            "keranjangBelanja": {
+              "status": "ada",
+              "keterangan": "15 keranjang belanja"
+            }
+          },
+          "instalasiListrik": {
+            "status": "ada",
+            "keterangan": "Listrik PLN 3.500 VA"
+          },
+          "instalasiAirBersih": {
+            "status": "ada",
+            "keterangan": "PDAM lancar"
+          }
+        }
+      },
+      "kecamatan": "Kecamatan Lau",
+      "kodeKDKMP": "73.09.KDKMP.031",
+      "updatedAt": "2026-10-17T15:20:00Z",
+      "namaLokasi": "KDKMP Desa Maros Sejahtera",
+      "namaPetugas": "A. Muhammad Faisal, S.P (Satgas Regional Sulsel)",
+      "kontakPerson": "Daeng Bella (0813-5566-7788)",
+      "alamatLengkap": "Jl. Poros Maros - Pangkep Km. 7, Desa Maros Sejahtera",
+      "desaKelurahan": "Desa Maros Sejahtera",
+      "kabupatenKota": "Kabupaten Maros",
+      "catatanTambahan": "Kesiapan 77% (Siap Bersyarat). Gudang dan produk subsidi sangat siap, klinik dalam proses perlengkapan.",
+      "tanggalKunjungan": "2026-10-17"
+    },
+    "updated_at": "2026-10-28T08:39:21.634Z",
+    "created_at": "2026-10-28T08:39:21.639Z"
+  }
+]

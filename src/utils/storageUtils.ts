@@ -212,3 +212,56 @@ export async function clearLocationsCache(): Promise<void> {
     // Ignore
   }
 }
+
+/**
+ * Intelligently reconciles local client cache with server PostgreSQL records.
+ * Ensures:
+ * 1. Server locations are never ignored.
+ * 2. Unsaved offline additions on device are preserved and returned to be pushed.
+ * 3. Newer local edits (higher updatedAt timestamp) take precedence over older server records.
+ */
+export function reconcileLocations(
+  localLocations: KDKMPLocation[],
+  serverLocations: KDKMPLocation[]
+): { merged: KDKMPLocation[]; localOnlyToPush: KDKMPLocation[] } {
+  if (!serverLocations || serverLocations.length === 0) {
+    return { merged: localLocations, localOnlyToPush: [] };
+  }
+
+  const serverMap = new Map<string, KDKMPLocation>();
+  serverLocations.forEach(loc => serverMap.set(loc.id, loc));
+
+  const localOnlyToPush: KDKMPLocation[] = [];
+  const mergedMap = new Map<string, KDKMPLocation>();
+
+  // 1. Add all server locations as primary source
+  serverLocations.forEach(loc => mergedMap.set(loc.id, loc));
+
+  // 2. Cross-check against local locations to protect offline edits and new local drafts
+  localLocations.forEach(localLoc => {
+    const serverLoc = serverMap.get(localLoc.id);
+    if (!serverLoc) {
+      // Local location does not exist on server (drafted on this device while offline)
+      mergedMap.set(localLoc.id, localLoc);
+      localOnlyToPush.push(localLoc);
+    } else {
+      // Conflict resolution based on timestamps
+      const localTime = localLoc.updatedAt ? new Date(localLoc.updatedAt).getTime() : 0;
+      const serverTime = serverLoc.updatedAt ? new Date(serverLoc.updatedAt).getTime() : 0;
+
+      // If local version was edited more recently (by >1000ms), preserve local and push
+      if (localTime > serverTime + 1000) {
+        mergedMap.set(localLoc.id, localLoc);
+        localOnlyToPush.push(localLoc);
+      } else {
+        // Otherwise server version is up-to-date
+        mergedMap.set(localLoc.id, serverLoc);
+      }
+    }
+  });
+
+  return {
+    merged: Array.from(mergedMap.values()),
+    localOnlyToPush
+  };
+}

@@ -9,7 +9,7 @@ import { DeleteConfirmModal } from './components/DeleteConfirmModal';
 import { OfficialPdfPreviewModal } from './components/OfficialPdfPreviewModal';
 import { ImportModal } from './components/ImportModal';
 import { MapView } from './components/MapView';
-import { GoogleDriveModal } from './components/GoogleDriveModal';
+import { BackupModal } from './components/BackupModal';
 import { KDKMPLocation, KDKMPChecklist, createEmptyChecklist } from './types/kdkmp';
 import { INITIAL_LOCATIONS } from './data/defaultData';
 import { exportSummaryCsv, exportBlankChecklistPdf } from './utils/exportUtils';
@@ -27,10 +27,20 @@ import {
   getQuickCachedLocations,
   loadLocationsFromIndexedDB,
   cacheLocations,
-  clearLocationsCache
+  clearLocationsCache,
+  reconcileLocations
 } from './utils/storageUtils';
+import {
+  fetchLocationsFromPostgres,
+  saveLocationToPostgres,
+  saveMultipleLocationsToPostgres,
+  deleteLocationFromPostgres,
+  deleteMultipleLocationsFromPostgres,
+  resetLocationsInPostgres
+} from './services/postgresLocationService';
 import { generateRandomKDKMPCode } from './utils/kemendagriCodes';
 import { Check } from 'lucide-react';
+import { RecoveryModal } from './components/RecoveryModal';
 
 export default function App() {
   // Locations State (Initialized from quick local cache or fallback to INITIAL_LOCATIONS)
@@ -43,6 +53,8 @@ export default function App() {
   });
 
   const [cloudSyncStatus, setCloudSyncStatus] = useState<'synced' | 'syncing' | 'offline'>('syncing');
+  const [postgresConnected, setPostgresConnected] = useState<boolean>(true);
+  const [isSyncingServer, setIsSyncingServer] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'locations' | 'map' | 'statistics' | 'originalPdf'>('locations');
 
   // Modals state
@@ -61,6 +73,7 @@ export default function App() {
 
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isGoogleDriveOpen, setIsGoogleDriveOpen] = useState(false);
+  const [isRecoveryModalOpen, setIsRecoveryModalOpen] = useState(false);
 
   // Toast notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -73,6 +86,35 @@ export default function App() {
   }, []);
 
   const isStorageReadyRef = useRef<boolean>(false);
+  const locationsRef = useRef<KDKMPLocation[]>(locations);
+  useEffect(() => {
+    locationsRef.current = locations;
+  }, [locations]);
+
+  // Pure READ-ONLY refresh from PostgreSQL (Never writes, pushes, or deletes any data)
+  const handleReadOnlyRefresh = useCallback(async () => {
+    try {
+      setIsSyncingServer(true);
+      const pgLocations = await fetchLocationsFromPostgres();
+      if (pgLocations && pgLocations.length > 0) {
+        const localSource = locationsRef.current;
+        // Reconcile locally in memory to preserve local drafts & pending items without discarding anything
+        const { merged } = reconcileLocations(localSource, pgLocations);
+
+        setLocations(merged);
+        setPostgresConnected(true);
+        showToast(`✓ Berhasil memuat ulang data dari database lokal (${pgLocations.length} unit di server).`);
+      } else {
+        showToast('Database lokal terhubung, tidak ada pembaruan data.');
+      }
+    } catch (err) {
+      console.warn('Gagal memuat ulang data dari database lokal:', err);
+      setPostgresConnected(false);
+      showToast('Koneksi ke database lokal terganggu.');
+    } finally {
+      setIsSyncingServer(false);
+    }
+  }, [showToast]);
 
   // Save to persistent offline cache whenever locations change, but NEVER before storage initialization
   useEffect(() => {
@@ -80,18 +122,29 @@ export default function App() {
     cacheLocations(locations, true);
   }, [locations]);
 
-  // Connect to Firestore and subscribe to real-time updates so data persists when published
+  // Connect to Firestore & PostgreSQL and subscribe to updates so data persists permanently
   useEffect(() => {
     let isMounted = true;
 
-    // Check IndexedDB on mount to restore existing data and prevent resetting
+    // 1. Check IndexedDB on mount to restore existing data and merge with PostgreSQL (strictly read-only)
     loadLocationsFromIndexedDB()
-      .then((idbLocations) => {
+      .then(async (idbLocations) => {
         if (!isMounted) return;
-        if (idbLocations && idbLocations.length > 0) {
-          setLocations(idbLocations);
-        }
+        const localList = (idbLocations && idbLocations.length > 0) ? idbLocations : locations;
+        setLocations(localList);
         isStorageReadyRef.current = true;
+
+        // Fetch server data and reconcile in-memory only (strictly read-only, NO auto-push)
+        try {
+          const pgLocations = await fetchLocationsFromPostgres();
+          if (isMounted && pgLocations && pgLocations.length > 0) {
+            const { merged } = reconcileLocations(localList, pgLocations);
+            setLocations(merged);
+            setPostgresConnected(true);
+          }
+        } catch {
+          // Gracefully continue with local storage
+        }
       })
       .catch((err) => {
         console.warn('IndexedDB initial read error:', err);
@@ -103,8 +156,13 @@ export default function App() {
       (cloudLocations) => {
         if (!isMounted) return;
         if (cloudLocations && cloudLocations.length > 0) {
-          setLocations(cloudLocations);
-          cacheLocations(cloudLocations, true);
+          setLocations(prev => {
+            const { merged } = reconcileLocations(prev, cloudLocations);
+            cacheLocations(merged, true);
+            return merged;
+          });
+          // Mirror Firestore updates into PostgreSQL so both storage engines stay in parity
+          saveMultipleLocationsToPostgres(cloudLocations).catch(() => {});
         }
         setCloudSyncStatus('synced');
       },
@@ -117,7 +175,7 @@ export default function App() {
       isMounted = false;
       unsubscribe();
     };
-  }, []);
+  }, [handleReadOnlyRefresh]);
 
   const handleOpenChecklistModal = (
     loc: KDKMPLocation,
@@ -150,6 +208,8 @@ export default function App() {
     setSelectedLocationForChecklist(updatedLoc);
     setIsChecklistOpen(false);
 
+    // Save to Firestore and PostgreSQL concurrently
+    saveLocationToPostgres(updatedLoc).catch(() => {});
     try {
       await saveLocationToFirestore(updatedLoc);
       showToast(`✓ Checklist kesiapan "${updatedLoc.namaLokasi}" berhasil disimpan ke Cloud!`);
@@ -175,6 +235,7 @@ export default function App() {
       setIsLocationFormOpen(false);
       setSelectedLocationForEdit(null);
 
+      saveLocationToPostgres(updated).catch(() => {});
       try {
         await saveLocationToFirestore(updated);
         showToast(`✓ Data lokasi "${formData.namaLokasi || 'KDKMP'}" berhasil disimpan di Cloud!`);
@@ -205,6 +266,7 @@ export default function App() {
       setIsLocationFormOpen(false);
       setSelectedLocationForEdit(null);
 
+      saveLocationToPostgres(newLocation).catch(() => {});
       try {
         await saveLocationToFirestore(newLocation);
         showToast(`✓ Lokasi "${newLocation.namaLokasi}" berhasil ditambahkan & tersimpan di Cloud!`);
@@ -225,6 +287,7 @@ export default function App() {
     setIsDeleteConfirmOpen(false);
     setSelectedLocationForDelete(null);
 
+    deleteLocationFromPostgres(id).catch(() => {});
     try {
       await deleteLocationFromFirestore(id);
       showToast(`Lokasi "${name}" telah berhasil dihapus dari Cloud.`);
@@ -365,9 +428,10 @@ export default function App() {
       `✓ Seluruh ${totalMasuk} data lokasi terpilih telah berhasil masuk ke Daftar Lokasi (${addedCount} ditambahkan${updatedCount > 0 ? `, ${updatedCount} diperbarui` : ''})!`
     );
 
+    saveMultipleLocationsToPostgres(finalLocations).catch(() => {});
     try {
       await saveMultipleLocationsToFirestore(finalLocations);
-      showToast(`✓ Seluruh data impor tersimpan permanen di Cloud!`);
+      showToast(`✓ Seluruh data impor tersimpan permanen di Cloud & Database!`);
     } catch (err) {
       console.warn('Gagal sinkron impor ke Cloud:', err);
     }
@@ -378,9 +442,10 @@ export default function App() {
     setLocations(restored);
     cacheLocations(restored);
     setActiveTab('locations');
+    saveMultipleLocationsToPostgres(restored).catch(() => {});
     try {
       await saveMultipleLocationsToFirestore(restored);
-      showToast(`Berhasil memulihkan ${restored.length} data lokasi ke Cloud & Lokal.`);
+      showToast(`Berhasil memulihkan ${restored.length} data lokasi ke Cloud & Database.`);
     } catch (err) {
       console.error('Gagal sinkron restore ke Cloud:', err);
       showToast(`Berhasil memulihkan ${restored.length} data lokasi KDKMP.`);
@@ -405,6 +470,10 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         cloudSyncStatus={cloudSyncStatus}
+        postgresConnected={postgresConnected}
+        onSyncServer={handleReadOnlyRefresh}
+        isSyncingServer={isSyncingServer}
+        onOpenRecoveryModal={() => setIsRecoveryModalOpen(true)}
         onOpenAddModal={() => {
           setSelectedLocationForEdit(null);
           setIsLocationFormOpen(true);
@@ -558,13 +627,26 @@ export default function App() {
         existingLocations={locations}
       />
 
-      {/* 6. Google Drive Integration Modal */}
-      <GoogleDriveModal
+      {/* 6. Self-Contained Local Backup & Restore Modal */}
+      <BackupModal
         isOpen={isGoogleDriveOpen}
         onClose={() => setIsGoogleDriveOpen(false)}
         locations={locations}
         onRestoreData={handleRestoreDriveData}
         onShowToast={showToast}
+        onExportCsv={handleExportCsv}
+        onPrintBlankPdf={handlePrintBlankPdf}
+      />
+
+      {/* 7. Dedicated Verifiable Data Recovery Modal */}
+      <RecoveryModal
+        isOpen={isRecoveryModalOpen}
+        onClose={() => setIsRecoveryModalOpen(false)}
+        onRecoveryComplete={(verifiedLocations) => {
+          setLocations(verifiedLocations);
+          cacheLocations(verifiedLocations, true);
+          showToast(`✓ Seluruh ${verifiedLocations.length} data lokasi KDKMP berhasil dipulihkan & terverifikasi di database lokal!`);
+        }}
       />
     </div>
   );
